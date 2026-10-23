@@ -1,0 +1,832 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Control Entre Pares</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px Arial;background:#f4f8fb;color:#18324b}aside{position:fixed;inset:0 auto 0 0;width:250px;background:#102b4e;color:white;padding:20px 14px;overflow:auto}aside h2{font-size:18px;padding:0 8px}aside button{display:block;width:100%;text-align:left;margin:5px 0;padding:13px 12px;font-size:15px;line-height:1.35;border:0;border-radius:8px;background:transparent;color:white;cursor:pointer}aside button.active,aside button:hover{background:#087eaa}main{margin-left:250px;padding:24px;max-width:1500px}header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}h1{font-size:26px;margin:0}h2{font-size:20px;margin:0 0 14px}.muted{color:#61758a;font-size:13px}.panel{display:none}.panel.active{display:block}.card{background:white;border:1px solid #d7e3ec;border-radius:12px;padding:16px;margin-bottom:15px;box-shadow:0 2px 8px #00000008}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{display:block;font-size:13px;font-weight:bold;color:#526a80;margin-bottom:5px}input,select,textarea{width:100%;padding:10px;border:1px solid #c7d8e5;border-radius:8px;background:white;font:inherit}textarea{min-height:130px}button.action{border:0;border-radius:8px;padding:10px 14px;background:#087eaa;color:white;cursor:pointer}button.light{background:#e2f5fa;color:#087eaa}button.warn{background:#fde9e7;color:#a5271c}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:#eef8fb;border:1px solid #d3e7ef;border-radius:10px;padding:13px}.stat b{display:block;font-size:23px;color:#087eaa;margin-bottom:4px}.tablewrap{overflow:auto;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;border-bottom:1px solid #dce7ef;text-align:left;vertical-align:top}th{background:#eaf5fa;white-space:nowrap}.pill{display:inline-block;padding:4px 8px;background:#e2f5fa;color:#087eaa;border-radius:20px;font-size:11px}.alert{padding:11px;border-radius:8px;background:#fff3dc;color:#855400;margin:10px 0}.hide{display:none!important}.days{display:flex;gap:6px;flex-wrap:wrap}.days button{padding:7px 9px;border:0;border-radius:6px;cursor:pointer}.p{background:#d9f4fa;color:#087eaa}.a{background:#fde9e7;color:#a5271c}@media(max-width:800px){aside{position:static;width:auto;display:flex;flex-wrap:wrap;gap:3px;padding:8px}aside h2{width:100%}aside button{width:auto;padding:9px}main{margin:0;padding:12px}.grid,.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:500px){.grid,.grid2,.stats{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}}
+
+.brand-banner{background:linear-gradient(135deg,#102b4e,#087eaa);color:#fff;border:1px solid #0d789b;border-radius:14px;padding:20px 24px;margin-bottom:20px;text-align:center;box-shadow:0 4px 14px #00000016}
+.brand-title{font-size:clamp(20px,2.5vw,29px);font-weight:800;letter-spacing:1.2px;margin-bottom:9px}
+.brand-seminar{font-size:clamp(14px,1.6vw,18px);font-weight:600;line-height:1.4;margin-bottom:7px}
+.brand-facilitators{font-size:14px;color:#d8f5fb}
+.weekly-choice{display:flex;align-items:center;gap:8px;cursor:pointer}.weekly-choice input{accent-color:#16a6c8;width:18px;height:18px}.pie{width:116px;height:116px;border-radius:50%;flex:0 0 116px;border:3px solid #a5bac9}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.logo-preview{min-height:74px;display:flex;align-items:center;justify-content:center;padding:8px;margin:8px 0;border:1px dashed #8aa6b9;border-radius:8px}.logo-preview img{max-width:100%;max-height:92px;object-fit:contain}.report-logos{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;min-height:42px}.report-logos img{display:block!important;width:82px!important;height:62px!important;max-width:82px!important;max-height:62px!important;object-fit:contain!important;flex:0 0 70px!important;opacity:.78}.report-logos .report-title{flex:1;text-align:center;min-width:0}.report-logos .report-title h1{font-size:15px;margin:0 0 2px}.report-logos .report-title h2{font-size:10px;margin:2px 0}.report-logos .report-title p{font-size:9px;margin:2px 0}#activeWeekWrap{display:none!important}
+</style>
+<style id="institutional-blue-theme">
+:root{color-scheme:light;--bg:#f4f8fb;--panel:#ffffff;--panel2:#edf7fb;--line:#d5e2eb;--text:#18324b;--muted:#526a80;--green:#16a6c8;--green-dark:#102b4e}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+main{background:var(--bg)!important;color:var(--text)!important}
+aside,.side-nav{background:#102b4e!important;color:#fff!important}
+aside button.active,aside button:hover{background:#087eaa!important;color:#fff!important}
+.brand-banner{background:linear-gradient(120deg,#102b4e,#087eaa)!important;border-color:#16a6c8!important;color:#fff!important}
+.brand-facilitators{color:#e2f5fa!important}
+header,.card,.panel,.stat,.dbox,.tablewrap,.table-wrap{background:#fff!important;color:var(--text)!important;border-color:var(--line)!important;box-shadow:0 2px 8px #102b4e0c!important}
+.muted,.small,.side-brand span,.muted *{color:var(--muted)!important}
+input,select,textarea{background:#fff!important;color:var(--text)!important;border:1px solid #b7ccdc!important;box-shadow:none!important}
+input::placeholder,textarea::placeholder{color:#71879a!important}select option{background:#fff!important;color:var(--text)!important}
+table{background:#fff!important;color:var(--text)!important}th{background:#e2f5fa!important;color:#102b4e!important}td{border-color:var(--line)!important}tr:hover td{background:#f0f9fc!important}
+button.action,button.primary,.nav-btn.active{background:#087eaa!important;color:#fff!important;border-color:#087eaa!important}
+button.light,button.secondary{background:#e2f5fa!important;color:#075b78!important;border-color:#b7dfe9!important}
+button.warn,.danger{background:#a52b36!important;color:#fff!important;border-color:#a52b36!important}
+button:hover{filter:brightness(1.06)}
+.pill{background:#d8f2f7!important;color:#075b78!important}
+.alert,.notice.warn{background:#fff4d8!important;color:#77520a!important;border:1px solid #e3c77d!important}.alert *,.notice.warn *{color:inherit!important}
+hr{border-color:var(--line)!important}.stat b,.dbox b{color:#087eaa!important}
+.days button{background:#e2f5fa!important;color:#18324b!important}.days button.p{background:#087eaa!important;color:#fff!important}.days button.a{background:#a52b36!important;color:#fff!important}
+a{color:#087eaa!important}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#eaf2f7}::-webkit-scrollbar-thumb{background:#9ab8ca;border-radius:8px}
+@media print{html,body,main,.card,table,th,td{background:#fff!important;color:#000!important}aside{display:none!important}main{margin:0!important}}
+</style>
+
+<style id="final-azul-celeste-ajustes">
+:root{color-scheme:light;--bg:#f3f8fc;--line:#cfe0ec;--text:#173451;--muted:#526d83}
+html,body,main{background:#f3f8fc!important;color:#173451!important}
+aside{background:#12345a!important;color:#fff!important}
+aside button{color:#fff!important}
+aside button.active,aside button:hover{background:#0786b5!important;color:#fff!important}
+.brand-banner{background:linear-gradient(125deg,#12345a 0%,#087eaa 65%,#22b7d4 100%)!important;border-color:#28b8d5!important;color:#fff!important}
+.card,.stat{background:#fff!important;border-color:#cfe0ec!important;color:#173451!important}
+.stat{background:#edf8fc!important}
+.stat b{color:#087eaa!important}
+button.action,button.primary{background:#087eaa!important;color:#fff!important;border-color:#087eaa!important}
+button.light,button.secondary{background:#dff4fa!important;color:#075b78!important;border-color:#b8e3ee!important}
+th{background:#e2f5fa!important;color:#12345a!important}
+.pill{background:#dff4fa!important;color:#075b78!important}
+#activeWeekWrap{display:none!important}
+@media print{html,body,main,.card,table,th,td{background:#fff!important;color:#000!important}aside{display:none!important}}
+#authGate{position:fixed;inset:0;z-index:99999;background:#eef6fb;display:flex;align-items:center;justify-content:center;padding:20px}#authGate .auth-card{width:min(430px,100%);background:#fff;border:1px solid #cfe0ec;border-radius:16px;padding:26px;box-shadow:0 10px 35px #102b4e20}#authGate h2{color:#12345a;margin:0 0 8px}#authGate p{color:#526d83;line-height:1.5}#authMessage{margin-top:12px;font-size:13px;color:#a52b36}#userBar{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:13px;color:#526d83}#userBar button{border:0;border-radius:7px;padding:8px 12px;background:#e2f5fa;color:#075b78;cursor:pointer}#appShell.auth-locked{display:none!important}
+</style>
+
+<style id="printable-utility-sheets">
+.print-heading{text-align:center;margin-bottom:14px}.print-heading h1{font-size:18px;margin:0 0 5px}.print-heading h2{font-size:13px;margin:4px 0}.print-heading p{font-size:11px;margin:6px 0 12px}.print-note{font-size:11px;margin-top:14px}.utility-sheet{font-size:12px}.utility-sheet table{font-size:11px}.utility-sheet th,.utility-sheet td{padding:7px 6px;border:1px solid #555}.utility-sheet th{background:#eee!important;color:#000!important}.blank-cell{height:28px}.position-table td:first-child,.position-table th:first-child{text-align:center;width:7%}.position-table td:last-child,.position-table th:last-child{width:25%}.specialty-table td:last-child{width:44%;height:30px}.correction-table td{height:35px}.print-heading{color:#000}
+@page{size:letter portrait;margin:12mm}
+@media print{body{background:#fff!important;color:#000!important;font-size:11px}#authGate,aside,#userBar,.brand-banner,.no-print,body>select{display:none!important}#appShell{display:block!important}main{margin:0!important;padding:0!important;max-width:none!important;background:#fff!important}.panel{display:none!important}#utilities.panel.active{display:block!important}#utilities .utility-sheet{display:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;border-radius:0!important}#utilities .utility-sheet.print-target{display:block!important}#utilities .card{box-shadow:none!important}#utilities table{width:100%;border-collapse:collapse}#utilities th,#utilities td{color:#000!important;background:#fff!important;border:1px solid #444!important}#utilities .print-heading{margin-bottom:12px}#utilities .print-heading h1{font-size:16px}#utilities .print-heading h2{font-size:12px}#utilities .print-heading p{font-size:10px}}
+#users.panel .permission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:10px 0}#users.panel .permission-grid label{display:flex;gap:8px;align-items:flex-start;background:#f2f8fb;border:1px solid #d5e5ed;padding:9px;border-radius:8px}#users.panel .permission-grid input{width:auto;margin-top:3px}#users.panel .user-row{border:1px solid #d5e5ed;border-radius:10px;padding:12px;margin:10px 0;background:#fff}#users.panel .user-row .grid2{align-items:end}@media(max-width:620px){#users.panel .user-row .grid2{grid-template-columns:1fr}}
+</style>
+</head><body>
+<div id="authGate"><div class="auth-card"><h2>Control Entre Pares Panamá Este</h2><p>Inicie sesión con el correo y la contraseña que se registraron en Firebase Authentication.</p><form id="loginForm"><label for="loginEmail">Correo electrónico</label><input id="loginEmail" type="email" autocomplete="username" required><label for="loginPassword" style="margin-top:12px">Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" required><div class="actions"><button class="action" id="loginButton" type="submit">Iniciar sesión</button></div></form><div id="authMessage" role="status"></div><p class="muted">Los datos solo se cargarán después de validar su acceso.</p></div></div>
+<div id="maintenanceGate" role="status" aria-live="polite"><div class="maintenance-card"><div class="maintenance-icon">🛠️</div><h2>Control Entre Pares está en mantenimiento</h2><p id="maintenanceMessage">El sistema está temporalmente fuera de servicio. Intente nuevamente más tarde.</p><p>El acceso se restablecerá cuando el administrador reanude el servicio.</p></div></div>
+<div id="participantEditModal" class="edit-modal hide" role="dialog" aria-modal="true" aria-labelledby="participantEditTitle"><div class="edit-modal-card"><h2 id="participantEditTitle">Corregir datos del docente</h2><p class="muted">Corrige la información indicada por el docente. Los cambios se guardarán usando el sistema actual.</p><form id="participantEditForm"><input type="hidden" id="editParticipantId"><div class="grid2"><div><label for="editParticipantName">Nombre y apellidos</label><input id="editParticipantName" required maxlength="180"></div><div><label for="editParticipantCedula">Cédula</label><input id="editParticipantCedula" required maxlength="40"></div></div><div style="margin-top:12px"><label for="editParticipantSchool">Centro educativo</label><input id="editParticipantSchool" list="editSiaceSchools" maxlength="220" placeholder="Escribe el nombre o selecciona uno del catálogo"><datalist id="editSiaceSchools"></datalist><p class="muted">Si corresponde a un centro del catálogo SIACE, se guardará con su nombre de referencia.</p></div><div class="edit-apply-all"><label class="weekly-choice"><input type="checkbox" id="editParticipantAllRecords" checked> Aplicar esta corrección a los registros del mismo docente en otros grupos</label><p id="editParticipantHistoryHint" class="muted"></p></div><div class="actions"><button class="action" type="submit">Guardar cambios</button><button class="action light" type="button" onclick="closeParticipantEditor()">Cancelar</button></div><p id="editParticipantMessage" role="status" class="muted"></p></form></div></div><style>.edit-modal{position:fixed;inset:0;z-index:100000;background:#102b4e99;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}.edit-modal.hide{display:none!important}.edit-modal-card{width:min(720px,100%);max-height:94vh;overflow:auto;background:#fff;color:#173451;border:1px solid #cfe0ec;border-radius:16px;padding:22px;box-shadow:0 18px 60px #102b4e44}.edit-modal-card h2{color:#12345a;margin:0 0 8px}.edit-apply-all{background:#eef8fb;border:1px solid #cfe0ec;border-radius:10px;padding:12px;margin-top:14px}.edit-apply-all .weekly-choice{align-items:flex-start;color:#173451}.edit-apply-all input{width:18px;flex:0 0 18px;margin-top:2px}@media(max-width:520px){.edit-modal-card{padding:16px}.edit-modal-card .grid2{grid-template-columns:1fr}}</style>
+<style id="rolePermissionStyles">.visitor-mode #weeks{display:none!important}.visitor-mode #exports,.visitor-mode #siace,.visitor-mode #utilities{display:none!important}.visitor-mode #participantEditModal{display:none!important}.visitor-mode #incidents .card:first-child input,.visitor-mode #incidents .card:first-child textarea,.visitor-mode #incidents .card:first-child select{pointer-events:none}.visitor-mode #incidents .actions{display:none!important}.visitor-mode #attendance .actions{display:none!important}.visitor-mode #homeGroups th:last-child,.visitor-mode #homeGroups td:last-child{display:none!important}.admin-only{display:none!important}.admin-mode aside .admin-only{display:block!important}body.admin-mode #users.panel.active{display:block!important}body.admin-mode #userBar .admin-only{display:inline-block!important}.perfeccionamiento-mode #incidents{display:none!important}#maintenanceGate{display:none;position:fixed;inset:0;z-index:200000;background:#eef6fb;align-items:center;justify-content:center;padding:20px}#maintenanceGate .maintenance-card{width:min(520px,100%);background:#fff;border:1px solid #cfe0ec;border-radius:18px;padding:30px;text-align:center;box-shadow:0 14px 42px #102b4e20;color:#173451}#maintenanceGate .maintenance-icon{font-size:42px;margin-bottom:12px}#maintenanceGate h2{margin:0 0 10px;color:#12345a}#maintenanceGate p{line-height:1.6;color:#526d83}</style>
+<div id="appShell" class="auth-locked">
+<select id="activeWeek" class="hide" aria-hidden="true"></select>
+<aside><h2>ENTRE PARES<br><span class="muted" style="color:#cfe4d9">Control semanal</span></h2>
+<button class="active" data-tab="home" onclick="tab('home',this)">🏠 Panel principal</button>
+<button data-tab="weeks" onclick="tab('weeks',this)">📅 Grupo nuevo</button>
+<button data-tab="people" onclick="openAllPeople(this)">👥 Todos los participantes</button>
+<button data-tab="attendance" onclick="tab('attendance',this)">✅ Asistencia semanal</button>
+<button data-tab="absent" onclick="tab('absent',this)">🚫 Docentes no asistentes</button>
+<button data-tab="analytics" onclick="tab('analytics',this)">📊 Análisis de datos</button>
+<button data-tab="repeats" onclick="tab('repeats',this)">🔁 Docentes repetidos entre grupos</button>
+
+<button data-tab="incidents" onclick="tab('incidents',this)">📝 Incidencias y observaciones</button>
+<button data-tab="users" class="admin-only" onclick="tab('users',this)">🔐 Usuarios y permisos</button>
+<button data-tab="exports" onclick="tab('exports',this)">📤 Exportación e impresión</button>
+<button data-tab="siace" onclick="tab('siace',this)">🏫 Catálogo de centros SIACE</button>
+<button data-tab="utilities" onclick="openUtilities(this)">🖨️ Hojas imprimibles</button>
+
+</aside>
+<main>
+<div id="userBar"><span id="signedInAs"></span><button type="button" id="maintenanceToggleButton" class="admin-only" onclick="toggleMaintenanceMode()">🛠️ Activar mantenimiento</button><button type="button" onclick="logoutFirebase()">Cerrar sesión</button></div>
+<section id="users" class="panel admin-only">
+ <div class="card"><h2>Administrar usuarios y permisos</h2><p class="muted">Solo el administrador principal puede crear cuentas, cambiar roles, ajustar las secciones visibles y desactivar accesos. Cada persona inicia sesión con su propio correo y contraseña.</p>
+ <form id="createUserForm"><div class="grid2"><div><label for="newUserName">Nombre para identificar la cuenta</label><input id="newUserName" required maxlength="100" placeholder="Ej. Técnico Docente"></div><div><label for="newUserEmail">Correo electrónico</label><input id="newUserEmail" type="email" required autocomplete="off"></div><div><label for="newUserPassword">Contraseña inicial</label><input id="newUserPassword" type="password" minlength="6" required autocomplete="new-password"><small class="muted">Mínimo 6 caracteres. Entrégala de forma privada.</small></div><div><label for="newUserRole">Rol</label><select id="newUserRole"><option value="tecnico_docente">Técnico Docente — consulta de incidencias</option><option value="perfeccionamiento">Perfeccionamiento — consulta sin incidencias</option><option value="coordinador">Coordinador — gestión operativa</option></select></div></div>
+ <div id="newVisitorPermsWrap"><h3>Secciones de consulta autorizadas</h3><div class="permission-grid" id="newVisitorPerms"><label><input type="checkbox" value="home" checked> Panel principal y grupos</label><label><input type="checkbox" value="people" checked> Todos los participantes</label><label><input type="checkbox" value="attendance" checked> Asistencia semanal</label><label><input type="checkbox" value="absent" checked> Docentes no asistentes</label><label><input type="checkbox" value="analytics" checked> Análisis de datos</label><label><input type="checkbox" value="repeats" checked> Docentes repetidos</label><label><input type="checkbox" value="incidents" checked> Incidencias y observaciones</label></div></div>
+ <div class="actions"><button class="action" type="submit" id="createUserButton">Crear cuenta</button><button class="action light" type="button" onclick="loadManagedUsers()">Actualizar lista</button></div><p id="userAdminMessage" role="status" class="muted"></p></form></div>
+ <div class="card"><h2>Cuentas registradas</h2><p class="muted">Puedes cambiar el rol, ajustar permisos de lectura y activar o desactivar una cuenta. Desactivar no elimina su historial ni su cuenta de autenticación.</p><div id="managedUsersList">Carga la lista al abrir esta sección.</div></div>
+ <div class="card"><h3>Importante sobre los visitantes</h3><p class="muted"><b>Importante:</b> los perfiles de consulta no pueden modificar registros desde la aplicación. Actualmente los datos, incluidas las incidencias, se almacenan en un único documento de Firestore; ocultar una sección no garantiza confidencialidad de sus datos. Para impedir que Perfeccionamiento lea las incidencias, será necesario separar esos datos y ajustar las reglas de seguridad de Firebase.</p></div>
+</section>
+<div class="brand-banner"><div class="brand-title">ENTRE PARES PANAMÁ ESTE</div><div class="brand-seminar">Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial</div><div class="brand-facilitators">Facilitadores: José Santos y Esteban Arosemena</div><div class="brand-facilitators">Sede: Venancio Fenosa Pascual · Grupo nacional: 62</div></div>
+
+
+<section id="home" class="panel active">
+<div class="card"><h2>Panorama general</h2><div class="stats">
+<div class="stat"><b id="homeAll">0</b>Registros históricos</div><div class="stat"><b id="homeAttendancePct">0%</b>Porcentaje general de asistencia</div><div class="stat"><b id="homeAbsencePct">0%</b>Porcentaje general de ausencias</div><div class="stat"><b id="homePresentCount">0</b>Cantidad de asistencias</div><div class="stat"><b id="homeAbsentCount">0</b>Cantidad de ausencias</div><div class="stat"><b id="homeGroupCount">0</b>Grupos registrados hasta la fecha</div><div class="stat"><b id="homeIncidents">0</b>Incidencias registradas</div><div class="stat"><b id="homeSchoolCount">0</b>Colegios registrados hasta la fecha</div></div>
+<div id="weekAlert"></div></div>
+<div class="card"><h2>Grupos registrados</h2><div class="tablewrap"><table><thead><tr><th>Grupo</th><th>Fechas</th><th>Participantes</th><th>Estado</th><th>Acción</th><th>Eliminar grupo</th></tr></thead><tbody id="homeGroups"></tbody></table></div></div>
+</section>
+
+<section id="weeks" class="panel">
+<div class="card"><h2>Crear o seleccionar un grupo</h2><p class="muted">Ejemplo: Grupo 19, del 12 al 16 de octubre. Cada grupo corresponde a una semana.</p>
+<div class="grid"><div><label>Número de grupo</label><input id="weekNum" type="number" min="1" placeholder="19"></div><div><label>Fecha inicial (lunes)</label><input id="start" type="date"></div><div><label>Fecha final (viernes)</label><input id="end" type="date"></div></div>
+<div class="actions"><button class="action" onclick="createWeek()">Crear / guardar grupo</button><button class="action light" onclick="loadWeekForm()">Cargar semana activa</button></div><div id="weekMessage"></div></div>
+<div class="card"><h2>Importar docentes al grupo activo</h2><p class="muted">Pega la tabla con columnas N.º, Nombre, Apellido, Cédula y Centro educativo, o el formato simple Nombre, Cédula y Centro educativo. Se omite el encabezado automáticamente.</p>
+<textarea id="paste" placeholder="N.º&#9;Nombre&#9;Apellido&#9;Cédula&#9;Centro educativo"></textarea><div class="actions"><button class="action" onclick="preview()">Revisar lista</button><button class="action light" onclick="document.getElementById('paste').value=''">Limpiar cuadro</button></div><div id="importAlert"></div><div id="preview"></div></div>
+</section>
+
+<section id="people" class="panel"><div class="card"><h2>Todos los participantes</h2><p class="muted">Busca entre todas las semanas por nombre, cédula o colegio.</p>
+<div class="grid"><div><label>Buscar</label><input id="pq" oninput="renderPeople()" placeholder="Nombre, cédula o colegio"></div><div id="pgWrap"><label>Grupo</label><select id="pg" onchange="renderPeople()"></select></div><div><label>Centro educativo</label><select id="ps" onchange="renderPeople()"></select></div><div><label>Resultados</label><input id="pc" readonly></div></div><div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Centro educativo</th><th>Grupo</th><th>Fechas</th><th>Participación previa</th><th>Editar</th></tr></thead><tbody id="peopleBody"></tbody></table></div></div></section>
+
+<section id="attendance" class="panel"><div class="card"><h2>Asistencia del seminario por semana</h2><p class="muted">Marca una sola opción por docente para indicar si asistió al seminario durante esa semana. No se registra por día.</p><div style="max-width:360px;margin:12px 0"><label for="attendanceGroup">Seleccionar grupo / semana</label><select id="attendanceGroup" onchange="renderAttendance()"></select></div><div id="attendanceSummary"></div><div class="tablewrap"><table><thead id="attHead"></thead><tbody id="attBody"></tbody></table></div><div class="actions"><button class="action" onclick="markAll('P')">Marcar todos asistieron</button><button class="action light" onclick="markAll('A')">Marcar todos no asistieron</button><button class="action" onclick="save()">Guardar asistencia</button></div></div></section>
+
+<section id="absent" class="panel"><div class="card"><h2>Docentes no asistentes</h2><p class="muted">Este archivo muestra únicamente a los docentes cuyo estado de asistencia semanal está guardado como “No asistió”. No calcula ausencias por días ni crea registros nuevos.</p>
+<div class="grid2"><div><label>Filtrar por grupo / semana</label><select id="absentGroup" onchange="renderAbsentTeachers()"></select></div><div><label>Filtrar por centro educativo</label><select id="absentSchool" onchange="renderAbsentTeachers()"></select></div></div>
+<div class="stats" style="margin-top:12px"><div class="stat"><b id="absentCount">0</b>Docentes no asistentes</div><div class="stat"><b id="absentSchoolsCount">0</b>Centros educativos</div><div class="stat"><b id="absentGroupsCount">0</b>Grupos incluidos</div></div>
+<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Docente</th><th>Cédula</th><th>Centro educativo</th><th>Grupo / semana</th><th>Fechas del grupo</th><th>Estado registrado</th></tr></thead><tbody id="absentTeachersBody"></tbody></table></div>
+<div class="actions"><button class="action light" onclick="printAbsentTeachers()">🖨️ Imprimir / guardar PDF</button><button class="action" onclick="exportAbsentTeachersCSV()">📥 Exportar CSV para Excel</button></div></div></section>
+
+<section id="analytics" class="panel"><div class="card"><h2>Análisis de datos</h2><div class="grid2"><div><label>Filtrar por grupo</label><select id="ag" onchange="renderAnalytics()"></select></div><div><label>Filtrar por colegio</label><select id="as" onchange="renderAnalytics()"></select></div></div><div class="stats" style="margin-top:12px"><div class="stat"><b id="an">0</b>Participantes</div><div class="stat"><b id="ac">0</b>Centros educativos</div><div class="stat"><b id="ap">0%</b>Asistencia registrada</div><div class="stat"><b id="aa">0%</b>Porcentaje de ausencias</div></div><div class="grid2" style="margin-top:14px"><div class="card"><h2>Participantes por colegio</h2><div id="schoolStats"></div></div><div class="card"><h2>Participantes por grupo (menos ausentes)</h2><p class="muted">Cantidad del grupo menos los docentes marcados como “No asistió”.</p><div id="groupStats"></div></div></div><div class="card" style="margin-top:14px"><h2>Asistencia al seminario</h2><p class="muted">Gráficos de pastel según la asistencia semanal registrada. Cada participante se clasifica como asistió o no asistió.</p><div class="grid2"><div><h3>Resultado general</h3><div id="attendancePieOverall"></div></div><div><h3>Asistencia por grupo</h3><div id="attendancePieGroup"></div></div></div></div>
+<div class="card" style="margin-top:14px"><h2>Informes estadísticos en PDF</h2><p class="muted">Genera un informe consolidado de todos los grupos o uno individual del grupo seleccionado. Incluye participación por colegio, asistencia por colegio, gráficos de pastel y resumen general.</p><div class="actions"><button class="action" onclick="printAnalyticsReport('all')">📄 PDF estadístico general (todos los grupos)</button><button class="action light" onclick="printAnalyticsReport('group')">📄 PDF estadístico del grupo seleccionado</button></div></div>
+<div class="card" style="margin-top:14px"><h2>Asistencia semanal por grupo</h2><p class="muted">Selecciona un grupo para ver quién asistió, quién estuvo ausente toda la semana y el estado de asistencia semanal de cada participante.</p><div style="max-width:360px"><label>Grupo que deseas consultar</label><select id="weekAttendanceReport" onchange="renderWeeklyAttendanceReport()"></select></div><div class="stats" style="margin-top:12px"><div class="stat"><b id="warTotal">0</b>Participantes</div><div class="stat"><b id="warPresent">0</b>Asistieron al menos un día</div><div class="stat"><b id="warAbsent">0</b>Ausentes toda la semana</div></div><div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Docente</th><th>Cédula</th><th>Centro educativo</th><th>Asistencia semanal</th></tr></thead><tbody id="weeklyAttendanceBody"></tbody></table></div><div class="actions"><button class="action light" onclick="printWeeklyAttendanceReport()">Imprimir / guardar PDF</button><button class="action" onclick="exportWeeklyAttendanceReport()">Exportar asistencia del grupo (CSV)</button></div></div></div></section>
+
+
+<section id="repeats" class="panel"><div class="card"><h2>Docentes repetidos entre grupos</h2><p class="muted">Muestra únicamente a los docentes que aparecen en dos o más grupos. La coincidencia se determina primero por cédula y, si no hay cédula, por nombre normalizado. Los registros no se modifican.</p><div class="stats" style="margin-top:12px"><div class="stat"><b id="repeatTeachersCount">0</b>Docentes repetidos</div><div class="stat"><b id="repeatMembershipCount">0</b>Participaciones en grupos</div></div><div class="grid" style="margin-top:14px"><div><label>Buscar docente</label><input id="repeatSearch" oninput="renderRepeatedTeachers()" placeholder="Nombre, cédula o colegio"></div></div><div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Docente</th><th>Cédula</th><th>Centros educativos</th><th>Grupos donde aparece</th><th>Grupos donde asistió</th><th>N.º de grupos</th></tr></thead><tbody id="repeatedTeachersBody"></tbody></table></div><div class="actions"><button class="action light" onclick="printRepeatedTeachers()">🖨️ Imprimir / guardar PDF</button><button class="action" onclick="exportRepeatedTeachersCSV()">📥 Exportar CSV para Excel</button></div></div></section>
+
+<section id="incidents" class="panel"><div class="card"><h2>Incidencias y observaciones</h2><p class="muted">Registra situaciones del grupo, acuerdos, dificultades técnicas, observaciones generales o seguimiento.</p><div class="grid"><div><label>Grupo</label><select id="ig"></select></div><div><label>Fecha</label><input id="idate" type="date"></div><div><label>Tipo</label><select id="itype"><option>Observación general</option><option>Incidencia</option><option>Asistencia</option><option>Organización</option><option>Equipo / tecnología</option><option>Seguimiento</option></select></div><div><label>Docente / colegio (opcional)</label><input id="iperson" placeholder="Nombre o colegio"></div></div><div style="margin-top:10px"><label>Detalle de la incidencia u observación</label><textarea id="itext" placeholder="Describe qué ocurrió, acuerdos o acciones de seguimiento..."></textarea></div><div class="actions"><button class="action" onclick="addIncident()">Guardar observación</button></div></div>
+<div class="card"><h2>Consultar observaciones</h2><div class="grid2"><div><label>Filtrar grupo</label><select id="ifilter" onchange="renderIncidents()"></select></div><div><label>Buscar texto</label><input id="iq" oninput="renderIncidents()" placeholder="Incidencia, docente, colegio..."></div></div><div class="actions"><button class="action" id="exportIncidentsPdfButton" type="button" onclick="generateIncidentsPDF()" style="display:none">📄 Generar informe en PDF</button></div><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Grupo</th><th>Tipo</th><th>Relacionado con</th><th>Detalle</th><th></th></tr></thead><tbody id="incidentBody"></tbody></table></div></div></section>
+
+
+
+<section id="utilities" class="panel">
+<div class="card no-print"><h2>Hojas de utilidades imprimibles</h2><p class="muted">Esta pestaña es únicamente para preparar e imprimir documentos presenciales. No modifica los registros principales ni guarda los campos escritos en las hojas.</p><div class="actions"><button class="action" onclick="showUtilitySheet('specialty')">1. Especialidades docentes</button><button class="action light" onclick="showUtilitySheet('corrections')">2. Correcciones de datos</button><button class="action" onclick="printUtilitySheet()">🖨️ Imprimir hoja visible</button></div><div class="grid2" style="margin-top:12px"><div><label>Grupo para imprimir</label><select id="utilityGroup" onchange="renderUtilitySheets()"><option value="all">Todos los grupos (sin duplicados)</option></select></div><div><label>Vista</label><input value="Impresión vertical · tamaño carta" readonly></div></div></div>
+<div id="utilitySheetSpecialty" class="card utility-sheet" style="display:none"><div id="utilitySpecialtyContent"></div></div>
+<div id="utilitySheetCorrections" class="card utility-sheet" style="display:none"><div id="utilityCorrectionsContent"></div></div>
+</section>
+
+<section id="siace" class="panel"><div class="card"><h2>Catálogo de centros educativos SIACE</h2><p class="muted">Consulta por código, nombre oficial o variantes conocidas. Esta pestaña es de solo lectura y no modifica los registros de asistencia.</p><div class="grid"><div><label>Buscar centro educativo</label><input id="siaceQuery" oninput="renderSiace()" placeholder="Código SIACE, nombre o variante"></div><div><label>Resultados</label><input id="siaceCount" readonly value="0"></div></div><div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Código SIACE</th><th>Nombre de referencia</th><th>Variantes de búsqueda</th></tr></thead><tbody id="siaceBody"></tbody></table></div><p class="muted">Catálogo de trabajo integrado a partir de la lista recopilada. Busca por código SIACE, nombre o variantes. Confirma los datos con la fuente oficial antes de usarlos como registro definitivo.</p></div></section>
+
+<section id="exports" class="panel">
+<div class="card">
+<h2>Logos institucionales para los informes</h2>
+<p class="muted">Sube los logos del Gobierno y de Entre Pares una sola vez. Se guardarán en este navegador y aparecerán en los informes imprimibles/PDF.</p>
+<div class="grid2">
+ <div><label for="governmentLogoInput">Logo del Gobierno</label><input id="governmentLogoInput" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="handleReportLogo(event,'government')"><div id="governmentLogoPreview" class="logo-preview muted">Sin logo cargado</div><button class="action light" type="button" onclick="clearReportLogo('government')">Quitar logo del Gobierno</button></div>
+ <div><label for="entreParesLogoInput">Logo de Entre Pares</label><input id="entreParesLogoInput" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onchange="handleReportLogo(event,'entrePares')"><div id="entreParesLogoPreview" class="logo-preview muted">Sin logo cargado</div><button class="action light" type="button" onclick="clearReportLogo('entrePares')">Quitar logo de Entre Pares</button></div>
+</div><p class="muted">Recomendación: utiliza imágenes PNG con fondo transparente o JPG de buena resolución. Los logos se incluirán en los informes PDF; no se adjuntan automáticamente a CSV/Excel.</p>
+</div>
+<div class="card">
+<h2>Exportación e impresión de listas</h2>
+<p class="muted">Filtra por grupo o centro educativo y luego exporta a Excel o imprime/guarda como PDF.</p>
+<div class="grid">
+ <div><label>Qué deseas obtener</label><select id="exportScope" onchange="renderExportPreview()"><option value="group">Un grupo específico</option><option value="school">Un centro educativo</option><option value="all">Todos los participantes</option></select></div>
+ <div id="exportGroupWrap"><label>Grupo</label><select id="exportGroup" onchange="renderExportPreview()"></select></div>
+ <div id="exportSchoolWrap"><label>Centro educativo</label><select id="exportSchool" onchange="renderExportPreview()"></select></div>
+ <div><label>Formato de lista</label><select id="exportFormat" onchange="renderExportPreview()"><option value="participants">Lista de participantes</option><option value="attendance">Asistencia semanal (asistió / no asistió)</option></select></div>
+</div>
+<div class="stats" style="margin-top:12px">
+ <div class="stat"><b id="exportCount">0</b>Registros incluidos</div>
+ <div class="stat"><b id="exportGroups">0</b>Grupos incluidos</div>
+ <div class="stat"><b id="exportSchools">0</b>Centros educativos</div>
+ <div class="stat"><b>Excel / PDF</b>Formatos disponibles</div>
+</div>
+<div class="actions">
+ <button class="action" onclick="exportFilteredCSV()">📊 Descargar Excel con formato (.xls)</button>
+ <button class="action light" onclick="printFilteredList()">📄 Abrir informe para imprimir / PDF</button>
+</div>
+<div id="exportPreview" class="tablewrap"></div>
+<p class="muted">Para obtener el PDF, pulsa «Abrir informe para imprimir / PDF». En la ventana que se abre, pulsa «Imprimir / Guardar como PDF» y elige «Guardar como PDF» como destino. El botón genera el informe listo para imprimir; no descarga un PDF automáticamente.</p>
+</div>
+</section>
+
+
+</main>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const KEY='entre_pares_weekly_v1';let db=load();let pending=[];
+// Firebase web config. Verify this apiKey against the Firebase console if sign-in reports a configuration error.
+const firebaseConfig={apiKey:'AIzaSyBgBuwxZI4BDT60FBJeaG-IPgSQjpi3pCI',authDomain:'entre-pares-panama-este.firebaseapp.com',projectId:'entre-pares-panama-este',storageBucket:'entre-pares-panama-este.firebasestorage.app',messagingSenderId:'873533039676',appId:'1:873533039676:web:fcc21625906d842f010f39',measurementId:'G-WW3D87T6CQ'};
+let firebaseApp=null,auth=null,firestore=null,currentUser=null,cloudReady=false,cloudUnsubscribe=null,incidentUnsubscribe=null,profileUnsubscribe=null,maintenanceUnsubscribe=null,cloudWriteTimer=null,appStarting=false,maintenanceActive=false,maintenanceMessage='Control Entre Pares está temporalmente en mantenimiento. Intente nuevamente más tarde.';
+const CLOUD_DOC={collection:'appData',id:'main'};
+const MAINTENANCE_DOC={collection:'appSettings',id:'maintenance'};
+const INCIDENT_DOC={collection:'appData',id:'incidents'};
+try{firebaseApp=firebase.initializeApp(firebaseConfig);auth=firebase.auth();firestore=firebase.firestore();}catch(e){console.error(e)}
+function showAuthMessage(msg){const el=document.getElementById('authMessage');if(el)el.textContent=msg||''}
+function updateMaintenanceUi(){
+ const button=$('maintenanceToggleButton');
+ if(button){button.textContent=maintenanceActive?'🔓 Reanudar servicio':'🛠️ Activar mantenimiento';button.setAttribute('aria-pressed',maintenanceActive?'true':'false');}
+ const gate=$('maintenanceGate');
+ if(gate){const msg=$('maintenanceMessage');if(msg)msg.textContent=maintenanceMessage;gate.style.display=maintenanceActive&&currentRole!=='admin'?'flex':'none';}
+}
+function subscribeMaintenance(){
+ if(maintenanceUnsubscribe){maintenanceUnsubscribe();maintenanceUnsubscribe=null;}
+ maintenanceUnsubscribe=firestore.collection(MAINTENANCE_DOC.collection).doc(MAINTENANCE_DOC.id).onSnapshot(snap=>{
+  const wasActive=maintenanceActive;
+  maintenanceActive=snap.exists&&snap.data().activo===true;
+  maintenanceMessage=(snap.exists&&snap.data().mensaje)||'Control Entre Pares está temporalmente en mantenimiento. Intente nuevamente más tarde.';
+  updateMaintenanceUi();
+  if(maintenanceActive&&currentRole!=='admin'){
+   cloudReady=false;
+   $('appShell').classList.add('auth-locked');
+   $('authGate').style.display='none';
+  }else if(wasActive&&!maintenanceActive&&currentUser&&currentRole!=='admin'&&!cloudReady&&!appStarting){
+   startAuthenticatedApp(currentUser);
+  }
+ },err=>{console.error('No se pudo consultar el estado de mantenimiento:',err);});
+}
+async function toggleMaintenanceMode(){
+ if(!requireAdmin())return;
+ const button=$('maintenanceToggleButton');if(button)button.disabled=true;
+ try{
+  const ref=firestore.collection(MAINTENANCE_DOC.collection).doc(MAINTENANCE_DOC.id);
+  const snap=await ref.get();
+  const next=!(snap.exists&&snap.data().activo===true);
+  const msg='Control Entre Pares está temporalmente en mantenimiento. Intente nuevamente más tarde.';
+  await ref.set({activo:next,mensaje:next?msg:'',updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.uid},{merge:true});
+  maintenanceActive=next;maintenanceMessage=next?msg:'El mantenimiento ha finalizado.';updateMaintenanceUi();
+  alert(next?'Modo mantenimiento activado. Los demás perfiles quedarán bloqueados.':'Servicio reanudado. Los usuarios autorizados podrán volver a entrar.');
+ }catch(err){console.error(err);alert('No se pudo cambiar el modo mantenimiento: '+firebaseErrorText(err));}
+ finally{if(button)button.disabled=false;}
+}
+function firebaseErrorText(e){const c=e&&e.code||'';return ({'auth/invalid-credential':'Correo o contraseña incorrectos.','auth/invalid-email':'El correo electrónico no tiene un formato válido.','auth/too-many-requests':'Demasiados intentos. Espere un momento e inténtelo de nuevo.','auth/network-request-failed':'No hay conexión con Firebase. Revise su internet.','permission-denied':'Firebase bloqueó el acceso por las reglas de seguridad. No las abra; revise las reglas configuradas.'})[c]||((e&&e.message)||'No se pudo completar la operación.')}
+async function loginFirebase(e){if(e)e.preventDefault();if(!auth||!firestore){showAuthMessage('No se pudo iniciar Firebase. Verifique la configuración web del proyecto.');return}const email=$('loginEmail').value.trim(),password=$('loginPassword').value;const btn=$('loginButton');btn.disabled=true;btn.textContent='Verificando…';showAuthMessage('');try{await auth.signInWithEmailAndPassword(email,password)}catch(err){showAuthMessage(firebaseErrorText(err))}finally{btn.disabled=false;btn.textContent='Iniciar sesión'}}
+async function logoutFirebase(){cloudReady=false;if(cloudUnsubscribe){cloudUnsubscribe();cloudUnsubscribe=null}if(incidentUnsubscribe){incidentUnsubscribe();incidentUnsubscribe=null}if(profileUnsubscribe){profileUnsubscribe();profileUnsubscribe=null}if(maintenanceUnsubscribe){maintenanceUnsubscribe();maintenanceUnsubscribe=null}if(auth)await auth.signOut()}
+let currentRole='',currentProfile=null,managedUsersCache=[];let secondaryAuthApp=null;
+const VISITOR_TABS=['home','people','attendance','absent','analytics','repeats','incidents'];
+const READ_ONLY_ROLES=['visitante','tecnico_docente','perfeccionamiento'];
+const ROLE_LABELS={admin:'Administrador principal',coordinador:'Coordinador',visitante:'Técnico Docente',tecnico_docente:'Técnico Docente',perfeccionamiento:'Perfil de Perfeccionamiento'};
+const TAB_LABELS={home:'Panel principal y grupos',people:'Todos los participantes',attendance:'Asistencia semanal',absent:'Docentes no asistentes',analytics:'Análisis de datos',repeats:'Docentes repetidos',incidents:'Incidencias y observaciones'};
+function visitorPermissions(profile=currentProfile){const role=profile?.rol||currentRole;const defaults=role==='perfeccionamiento'?VISITOR_TABS.filter(x=>x!=='incidents'):VISITOR_TABS;const p=profile&&Array.isArray(profile.permisos)?profile.permisos:defaults;const allowed=p.filter(x=>VISITOR_TABS.includes(x)&&(role!=='perfeccionamiento'||x!=='incidents'));if(['visitante','tecnico_docente'].includes(role)&&!allowed.includes('incidents'))allowed.push('incidents');return allowed;}
+function isVisitor(){return READ_ONLY_ROLES.includes(currentRole);}
+function canOperate(){return ['admin','coordinador'].includes(currentRole);}
+function canPrintAnalyticsPdf(){return canOperate()||['tecnico_docente','visitante'].includes(currentRole);}
+function canReadIncidents(){return ['admin','coordinador','visitante','tecnico_docente'].includes(currentRole);}
+function requireWrite(){if(canOperate())return true;alert('Tu cuenta tiene permiso de solo lectura. No puedes modificar los datos.');return false;}
+function requireNoVisitor(){if(!isVisitor())return true;alert('Esta función no está disponible para las cuentas de solo lectura.');return false;}
+function applyRoleUi(){
+ const visitor=isVisitor(),admin=currentRole==='admin';document.body.classList.toggle('visitor-mode',visitor);document.body.classList.toggle('admin-mode',admin);document.body.classList.toggle('perfeccionamiento-mode',currentRole==='perfeccionamiento');
+ const allowed=new Set(visitor?visitorPermissions():['home','weeks','people','attendance','absent','analytics','repeats','incidents','exports','siace','utilities','users']);
+ document.querySelectorAll('aside [data-tab]').forEach(b=>{const id=b.dataset.tab;b.style.display=(id==='users'&&!admin)||(visitor&&!allowed.has(id))?'none':'';});
+ if(visitor){
+  const blocked=/\b(createWeek|preview|confirmImport|deleteGroup|editParticipant|saveParticipantEdit|clearAllParticipants|setWeeklyAtt|markAll|addIncident|delIncident|export[A-Za-z0-9_]*|print[A-Za-z0-9_]*|download|backupJSON|restoreJSON|handleReportLogo|clearReportLogo|showUtilitySheet|printUtilitySheet)\b/;
+  document.querySelectorAll('button[onclick]').forEach(b=>{if(blocked.test(b.getAttribute('onclick')||''))b.style.display='none';});
+  document.querySelectorAll('#homeGroups tr td:last-child, #home table thead th:last-child, #peopleBody tr td:last-child, #people thead th:last-child, #incidentBody tr td:last-child, #incidents thead th:last-child').forEach(e=>e.style.display='none');
+  document.querySelectorAll('#attendance input[type=radio]').forEach(e=>e.disabled=true);
+  ['weekNum','start','end','paste','ig','idate','itype','iperson','itext'].forEach(id=>{const e=$(id);if(e)e.disabled=true;});
+  if(currentRole==='perfeccionamiento'){const b=document.querySelector('aside [data-tab="incidents"]');if(b)b.style.display='none';const panel=$('incidents');if(panel)panel.style.display='none';}
+  const form=$('participantEditModal');if(form)form.classList.add('hide');
+  document.querySelectorAll('#analytics button, #repeats button').forEach(b=>{const act=b.getAttribute('onclick')||'',isPdfAnalytics=/printAnalyticsReport|printWeeklyAttendanceReport/.test(act),isExport=/export|csv|excel/i.test((b.textContent||'')+' '+act);b.style.display=(isPdfAnalytics&&['tecnico_docente','visitante'].includes(currentRole))?'':'none';if(isExport)b.style.display='none';});
+ } else {
+  const incidentPanel=$('incidents');if(incidentPanel)incidentPanel.style.display='';
+  document.querySelectorAll('button[onclick]').forEach(b=>b.style.display='');
+  document.querySelectorAll('#homeGroups tr td:last-child, #home table thead th:last-child, #peopleBody tr td:last-child, #people thead th:last-child, #incidentBody tr td:last-child, #incidents thead th:last-child').forEach(e=>e.style.display='');
+  ['weekNum','start','end','paste','ig','idate','itype','iperson','itext'].forEach(id=>{const e=$(id);if(e)e.disabled=false;});
+  document.querySelectorAll('#attendance input[type=radio]').forEach(e=>e.disabled=false);
+ }
+ if(visitor){const active=document.querySelector('.panel.active');if(active&&!allowed.has(active.id)){const next=[...allowed][0];if(next){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));$(next).classList.add('active');document.querySelectorAll('aside button').forEach(x=>x.classList.toggle('active',x.dataset.tab===next));}else{document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));$('home').classList.add('active');$('home').innerHTML='<div class="card"><h2>Sin secciones habilitadas</h2><p>Solicite al administrador que le asigne permisos de consulta.</p></div>';}}}
+ const createRole=$('newUserRole');if(createRole&&$('newVisitorPermsWrap'))$('newVisitorPermsWrap').style.display=READ_ONLY_ROLES.includes(createRole.value)?'':'none';
+ if(createRole){const inc=document.querySelector('#newVisitorPerms input[value="incidents"]');if(inc){inc.disabled=createRole.value==='perfeccionamiento';if(inc.disabled)inc.checked=false;else if(createRole.value==='tecnico_docente'&&!inc.dataset.userChanged)inc.checked=true;}}
+ const incidentPdfButton=$('exportIncidentsPdfButton');if(incidentPdfButton)incidentPdfButton.style.display=canOperate()?'inline-block':'none';
+}
+function requireAdmin(){if(currentRole==='admin')return true;alert('Solo el administrador principal puede administrar usuarios y permisos.');return false;}
+function getSelectedVisitorPerms(containerId){return [...document.querySelectorAll('#'+containerId+' input[type=checkbox]:checked')].map(x=>x.value).filter(x=>VISITOR_TABS.includes(x));}
+function showUserAdminMessage(msg,isError=false){const el=$('userAdminMessage');if(el){el.textContent=msg;el.style.color=isError?'#a52b36':'#28734a';}}
+function secondaryAuth(){if(secondaryAuthApp)return secondaryAuthApp.auth();secondaryAuthApp=firebase.initializeApp(firebaseConfig,'ControlEntreParesUserCreator');return secondaryAuthApp.auth();}
+async function createManagedUser(e){e.preventDefault();if(!requireAdmin())return;const name=$('newUserName').value.trim(),email=$('newUserEmail').value.trim().toLowerCase(),password=$('newUserPassword').value,role=$('newUserRole').value;let permisos=READ_ONLY_ROLES.includes(role)?getSelectedVisitorPerms('newVisitorPerms'):[];if(role==='tecnico_docente')permisos=[...new Set([...permisos,'incidents'])];if(role==='perfeccionamiento')permisos=permisos.filter(x=>x!=='incidents');const btn=$('createUserButton');btn.disabled=true;btn.textContent='Creando cuenta…';showUserAdminMessage('');let created=null;try{if(password.length<6)throw new Error('La contraseña debe tener al menos 6 caracteres.');const auth2=secondaryAuth();const cred=await auth2.createUserWithEmailAndPassword(email,password);created=cred.user;await firestore.collection('usuarios').doc(created.uid).set({nombre:name,correo:email,rol:role,activo:true,permisos,creadoPor:currentUser.uid,creadoEn:firebase.firestore.FieldValue.serverTimestamp()});await auth2.signOut();$('createUserForm').reset();document.querySelectorAll('#newVisitorPerms input[type=checkbox]').forEach(x=>{x.checked=true;x.disabled=false});$('newUserRole').value='tecnico_docente';applyRoleUi();showUserAdminMessage('Cuenta creada. El usuario ya puede iniciar sesión con su correo y contraseña.');await loadManagedUsers();}catch(err){console.error(err);if(created){showUserAdminMessage('La cuenta de autenticación se creó, pero no se pudo guardar su perfil en Firestore. No vuelvas a crearla con el mismo correo; revisa las reglas y registra el perfil con UID '+created.uid+'. Detalle: '+firebaseErrorText(err),true)}else showUserAdminMessage(firebaseErrorText(err),true);}finally{btn.disabled=false;btn.textContent='Crear cuenta';}}
+function userPermissionEditor(uid,profile){const role=profile.rol;const keys=role==='perfeccionamiento'?VISITOR_TABS.filter(k=>k!=='incidents'):VISITOR_TABS;return '<div class="permission-grid">'+keys.map(k=>{const fixedIncident=['tecnico_docente','visitante'].includes(role)&&k==='incidents';return '<label><input type="checkbox" data-perm="'+k+'" '+(visitorPermissions(profile).includes(k)?'checked':'')+(fixedIncident?' disabled':'')+'> '+esc(TAB_LABELS[k])+(fixedIncident?' (obligatorio)':'')+'</label>'}).join('')+'</div>';}
+async function loadManagedUsers(){if(!requireAdmin())return;const el=$('managedUsersList');el.textContent='Cargando cuentas…';try{const snap=await firestore.collection('usuarios').get();managedUsersCache=snap.docs.map(d=>({uid:d.id,...d.data()})).sort((a,b)=>(a.correo||'').localeCompare(b.correo||''));el.innerHTML=managedUsersCache.map(u=>{const isSelf=currentUser&&u.uid===currentUser.uid;return '<div class="user-row" data-uid="'+esc(u.uid)+'"><div class="grid2"><div><b>'+esc(u.nombre||u.correo||u.uid)+'</b><div class="muted">'+esc(u.correo||'Sin correo')+'</div><small class="muted">UID: '+esc(u.uid)+'</small></div><div><label>Rol</label><select data-user-role '+(isSelf?'disabled':'')+'><option value="admin" '+(u.rol==='admin'?'selected':'')+'>Administrador principal</option><option value="coordinador" '+(u.rol==='coordinador'?'selected':'')+'>Coordinador</option><option value="tecnico_docente" '+(['tecnico_docente','visitante'].includes(u.rol)?'selected':'')+'>Técnico Docente</option><option value="perfeccionamiento" '+(u.rol==='perfeccionamiento'?'selected':'')+'>Perfeccionamiento</option></select></div><div><label><input type="checkbox" data-user-active '+(u.activo===true?'checked':'')+' '+(isSelf?'disabled':'')+'> Cuenta activa</label></div></div><div data-user-perms-wrap style="display:'+(READ_ONLY_ROLES.includes(u.rol)?'block':'none')+'"><b>Secciones permitidas</b>'+userPermissionEditor(u.uid,u)+'</div><div class="actions"><button class="action" type="button" onclick="saveManagedUser(\''+esc(u.uid)+'\')" '+(isSelf?'disabled':'')+'>Guardar cambios</button></div></div>'}).join('')||'<p>No hay cuentas registradas.</p>';el.querySelectorAll('[data-user-role]').forEach(sel=>sel.addEventListener('change',e=>{const row=e.target.closest('.user-row'),role=e.target.value;row.querySelector('[data-user-perms-wrap]').style.display=READ_ONLY_ROLES.includes(role)?'block':'none';let inc=row.querySelector('[data-perm="incidents"]');if(role==='perfeccionamiento'&&inc){inc.checked=false;inc.disabled=true;inc.closest('label').style.display='none'}else if(inc){inc.closest('label').style.display='';inc.disabled=['tecnico_docente','visitante'].includes(role);if(inc.disabled)inc.checked=true;} }));}catch(err){console.error(err);el.textContent='No se pudo cargar la lista: '+firebaseErrorText(err);}}
+async function saveManagedUser(uid){if(!requireAdmin())return;const row=[...document.querySelectorAll('.user-row')].find(x=>x.dataset.uid===uid);if(!row)return;const original=managedUsersCache.find(x=>x.uid===uid);if(!original)return;const role=row.querySelector('[data-user-role]').value,activo=row.querySelector('[data-user-active]').checked;let permisos=READ_ONLY_ROLES.includes(role)?[...row.querySelectorAll('[data-perm]:checked')].map(x=>x.dataset.perm):[];if(['tecnico_docente','visitante'].includes(role))permisos=[...new Set([...permisos,'incidents'])];if(role==='perfeccionamiento')permisos=permisos.filter(x=>x!=='incidents');if(uid===currentUser.uid){alert('No puedes cambiar tu propio rol ni desactivar tu propia cuenta desde esta pantalla.');return;}try{await firestore.collection('usuarios').doc(uid).update({rol:role,activo,permisos});row.querySelector('.actions').insertAdjacentHTML('beforeend',' <span class="muted">Guardado</span>');await loadManagedUsers();}catch(err){console.error(err);alert('No se pudieron guardar los permisos: '+firebaseErrorText(err));}}
+
+async function startAuthenticatedApp(user){if(appStarting)return;appStarting=true;cloudReady=false;currentUser=user;showAuthMessage('');try{const profileSnap=await firestore.collection('usuarios').doc(user.uid).get();if(!profileSnap.exists||profileSnap.data().activo!==true||!['admin','coordinador','visitante','tecnico_docente','perfeccionamiento'].includes(profileSnap.data().rol)){await auth.signOut();showAuthMessage('Su cuenta no tiene un perfil activo autorizado. Solicite al administrador que configure su rol en Firestore.');return}const profile=profileSnap.data();currentProfile=profile;currentRole=profile.rol;$('signedInAs').textContent=(ROLE_LABELS[profile.rol]||'Usuario')+' · '+(profile.correo||user.email||'');/* El estado de mantenimiento se consulta antes de leer los datos compartidos. */subscribeMaintenance();const maintenanceSnap=await firestore.collection(MAINTENANCE_DOC.collection).doc(MAINTENANCE_DOC.id).get();maintenanceActive=maintenanceSnap.exists&&maintenanceSnap.data().activo===true;maintenanceMessage=(maintenanceSnap.exists&&maintenanceSnap.data().mensaje)||'Control Entre Pares está temporalmente en mantenimiento. Intente nuevamente más tarde.';updateMaintenanceUi();if(maintenanceActive&&profile.rol!=='admin'){$('authGate').style.display='none';$('appShell').classList.add('auth-locked');appStarting=false;return;}/* Mantener la interfaz oculta mientras se cargan los datos y se aplican los permisos del rol. */$('authGate').style.display='flex';$('appShell').classList.add('auth-locked');const ref=firestore.collection(CLOUD_DOC.collection).doc(CLOUD_DOC.id);const incidentRef=firestore.collection(INCIDENT_DOC.collection).doc(INCIDENT_DOC.id);const snap=await ref.get();let legacyIncidents=[];if(snap.exists){const remote=snap.data();if(remote&&remote.payload&&Array.isArray(remote.payload.weeks)){legacyIncidents=Array.isArray(remote.payload.incidents)?remote.payload.incidents:[];db=normalizeCloudDb(remote.payload);localStorage.setItem(KEY,JSON.stringify(db))}else throw new Error('El documento compartido de datos tiene un formato inesperado.')}else{if(READ_ONLY_ROLES.includes(profile.rol))throw new Error('Todavía no existen datos compartidos. Solicite al administrador que inicialice la aplicación.');db=load();if(!Array.isArray(db.weeks))db={weeks:[],records:[],incidents:[]};legacyIncidents=Array.isArray(db.incidents)?db.incidents:[];await ref.set({payload:{weeks:db.weeks,records:db.records},updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid})}
+/* Migración segura: solo administrador/coordinador separan las incidencias antiguas del documento compartido. Debe iniciar sesión primero una cuenta operativa antes de habilitar los perfiles de consulta nuevos. */
+if(canOperate()){const incidentSnap=await incidentRef.get();if(!incidentSnap.exists){await incidentRef.set({items:legacyIncidents,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid});}else if(legacyIncidents.length){const currentItems=Array.isArray(incidentSnap.data().items)?incidentSnap.data().items:[];if(!currentItems.length)await incidentRef.set({items:legacyIncidents,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid});}if(snap.exists&&Object.prototype.hasOwnProperty.call((snap.data()||{}).payload||{},'incidents')){await ref.set({payload:{weeks:db.weeks,records:db.records},updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid});}const migrated=await incidentRef.get();db.incidents=Array.isArray(migrated.data()?.items)?migrated.data().items:legacyIncidents;}else if(canReadIncidents()){const incidentSnap=await incidentRef.get();if(incidentSnap.exists){db.incidents=Array.isArray(incidentSnap.data().items)?incidentSnap.data().items:[];}else if(legacyIncidents.length){throw new Error('Las incidencias aún están dentro del documento antiguo. Inicie sesión primero con Administrador o Coordinador para completar la migración segura.');}else db.incidents=[];}else{if(legacyIncidents.length){throw new Error('Los datos antiguos todavía contienen incidencias en el documento compartido. Inicie sesión primero con Administrador o Coordinador para separarlas antes de usar Perfeccionamiento.');}db.incidents=[];}localStorage.setItem(KEY,JSON.stringify(db));if(!db.weeks.length){for(let i=1;i<=18;i++)db.weeks.push({id:'Grupo '+i,name:'Grupo '+i,start:'',end:''})}if(!$('activeWeek')){const sel=document.createElement('select');sel.id='activeWeek';sel.className='hide';document.body.appendChild(sel)}if(!db.weeks.some(w=>w.id===($('activeWeek').value||'')))$('activeWeek').value=db.weeks[0]?.id||'';appStarting=false;cloudReady=true;init();applyRoleUi();/* Mostrar el panel solo después de que applyRoleUi haya ocultado las secciones no autorizadas. */$('appShell').classList.remove('auth-locked');$('authGate').style.display='none';
+if(cloudUnsubscribe)cloudUnsubscribe();
+if(profileUnsubscribe)profileUnsubscribe();
+profileUnsubscribe=firestore.collection('usuarios').doc(user.uid).onSnapshot(async liveProfileSnap=>{
+  const liveProfile=liveProfileSnap.exists?liveProfileSnap.data():null;
+  const validRole=liveProfile&&['admin','coordinador','visitante','tecnico_docente','perfeccionamiento'].includes(liveProfile.rol);
+  if(!liveProfileSnap.exists||!liveProfile||liveProfile.activo!==true||!validRole||liveProfile.rol!==currentRole){
+    cloudReady=false;
+    if(cloudUnsubscribe){cloudUnsubscribe();cloudUnsubscribe=null}
+    if(profileUnsubscribe){const stop=profileUnsubscribe;profileUnsubscribe=null;stop()}
+    showAuthMessage('Tu cuenta fue desactivada o tus permisos cambiaron. La sesión se ha cerrado; solicita al administrador que revise tu perfil.');
+    if(auth&&auth.currentUser)await auth.signOut();
+  }
+},err=>{console.error(err);});
+cloudUnsubscribe=ref.onSnapshot(s=>{if(!s.exists||!s.data().payload)return;const savedIncidents=db.incidents||[];const incoming=normalizeCloudDb(s.data().payload);db=incoming;db.incidents=canReadIncidents()?savedIncidents:[];try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}if(cloudReady){const activeId=$('activeWeek').value;refresh();applyRoleUi();if(db.weeks.some(w=>w.id===activeId))$('activeWeek').value=activeId;loadWeekForm();}} ,err=>{console.error(err);showAuthMessage('No se pudo sincronizar con Firestore: '+firebaseErrorText(err))});if(incidentUnsubscribe){incidentUnsubscribe();incidentUnsubscribe=null;}if(canReadIncidents()){incidentUnsubscribe=incidentRef.onSnapshot(s=>{db.incidents=s.exists&&Array.isArray(s.data().items)?s.data().items:[];try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}if(cloudReady){refresh();applyRoleUi();}},err=>{console.error(err);showAuthMessage('No se pudieron cargar las incidencias: '+firebaseErrorText(err))});}}catch(err){appStarting=false;console.error(err);$('authGate').style.display='flex';$('appShell').classList.add('auth-locked');showAuthMessage('No se pudo cargar el espacio compartido. '+firebaseErrorText(err))}}
+function normalizeCloudDb(value){return {weeks:Array.isArray(value.weeks)?value.weeks:[],records:Array.isArray(value.records)?value.records:[],incidents:[]}}
+function queueCloudSave(){if(isVisitor())return;if(!cloudReady||!currentUser||!firestore)return;clearTimeout(cloudWriteTimer);cloudWriteTimer=setTimeout(async()=>{try{const stamp=firebase.firestore.FieldValue.serverTimestamp();await firestore.collection(CLOUD_DOC.collection).doc(CLOUD_DOC.id).set({payload:{weeks:db.weeks,records:db.records},updatedAt:stamp,updatedBy:currentUser.uid});await firestore.collection(INCIDENT_DOC.collection).doc(INCIDENT_DOC.id).set({items:Array.isArray(db.incidents)?db.incidents:[],updatedAt:stamp,updatedBy:currentUser.uid});}catch(e){console.error(e);alert('Los cambios se guardaron en este navegador, pero no se pudieron sincronizar con la nube. Revise conexión y permisos de Firebase. '+firebaseErrorText(e))}},350)}
+function $(id){return document.getElementById(id)}
+function load(){
+ try{
+  let d=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(d&&Array.isArray(d.weeks)){
+   d.records=Array.isArray(d.records)?d.records:[];
+   d.incidents=Array.isArray(d.incidents)?d.incidents:[];
+   const canonical={};
+   const remap={};
+   d.weeks.forEach(w=>{
+    const m=String(w.id||w.name||'').match(/(\d+)/);
+    if(!m)return;
+    const id='Grupo '+parseInt(m[1],10);
+    remap[w.id]=id;
+    if(!canonical[id])canonical[id]={id:id,name:id,start:w.start||'',end:w.end||''};
+    else{
+     if(!canonical[id].start&&w.start)canonical[id].start=w.start;
+     if(!canonical[id].end&&w.end)canonical[id].end=w.end;
+    }
+   });
+   d.records.forEach(r=>{const m=String(r.week||'').match(/(\d+)/);if(m)r.week='Grupo '+parseInt(m[1],10);});
+   d.incidents.forEach(x=>{const m=String(x.week||'').match(/(\d+)/);if(m)x.week='Grupo '+parseInt(m[1],10);});
+   d.weeks=Object.values(canonical).sort((a,b)=>parseInt(a.id.match(/\d+/)[0])-parseInt(b.id.match(/\d+/)[0]));
+   return d;
+  }
+ }catch(e){}
+ return {weeks:[],records:[],incidents:[]};
+}
+function save(){if(!requireWrite())return;localStorage.setItem(KEY,JSON.stringify(db));queueCloudSave()}
+const REPORT_LOGO_KEY='entre_pares_report_logos_v1';
+function getReportLogos(){try{return JSON.parse(localStorage.getItem(REPORT_LOGO_KEY)||'{"government":"","entrePares":""}')}catch(e){return {government:'',entrePares:''}}}
+function renderReportLogoPreviews(){const logos=getReportLogos();[['government','governmentLogoPreview'],['entrePares','entreParesLogoPreview']].forEach(([key,id])=>{const el=$(id);if(el)el.innerHTML=logos[key]?'<img alt="Logo institucional" src="'+logos[key]+'">':'Sin logo cargado'})}
+function handleReportLogo(event,key){if(!requireWrite())return;const file=event.target.files&&event.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Selecciona un archivo de imagen PNG, JPG, WEBP o SVG.');event.target.value='';return}if(file.size>2*1024*1024){alert('El logo debe pesar menos de 2 MB.');event.target.value='';return}const reader=new FileReader();reader.onload=()=>{const logos=getReportLogos();logos[key]=reader.result;try{localStorage.setItem(REPORT_LOGO_KEY,JSON.stringify(logos));renderReportLogoPreviews()}catch(e){alert('No se pudo guardar el logo. Prueba una imagen más pequeña.')}};reader.readAsDataURL(file)}
+function clearReportLogo(key){if(!requireWrite())return;const logos=getReportLogos();logos[key]='';localStorage.setItem(REPORT_LOGO_KEY,JSON.stringify(logos));const input=$(key==='government'?'governmentLogoInput':'entreParesLogoInput');if(input)input.value='';renderReportLogoPreviews()}
+function reportLogoHeader(){const l=getReportLogos();const logoStyle="display:block;width:82px!important;height:62px!important;max-width:82px!important;max-height:62px!important;object-fit:contain;opacity:.9;flex:0 0 82px;";return '<div class="report-logos" style="display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;width:100%!important;margin:0 0 8px!important;min-height:62px!important;box-sizing:border-box!important;">'+(l.government?'<img src="'+l.government+'" alt="Logo del Gobierno" style="'+logoStyle+'">':'<span style="display:block;flex:0 0 82px;width:82px;height:62px"></span>')+'<div class="report-title" style="flex:1 1 auto!important;text-align:center!important;min-width:0!important;"> <h1 style="font-size:15px;margin:0 0 2px;">ENTRE PARES PANAMÁ ESTE</h1><h2 style="font-size:10px;margin:2px 0;">Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial</h2><p style="font-size:9px;margin:2px 0;">Facilitadores: José Santos y Esteban Arosemena</p><p style="font-size:9px;margin:2px 0;">Sede: Venancio Fenosa Pascual · Grupo nacional: 62</p></div>'+(l.entrePares?'<img src="'+l.entrePares+'" alt="Logo de Entre Pares" style="'+logoStyle+'">':'<span style="display:block;flex:0 0 82px;width:82px;height:62px"></span>')+'</div>'}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function active(){return $('activeWeek').value}
+function wk(g){return db.weeks.find(w=>w.id===g)}
+function rows(g=active()){return db.records.filter(r=>r.week===g)}
+function datefmt(s){if(!s)return '—';return new Date(s+'T00:00:00').toLocaleDateString('es-PA')}
+
+const SIACE_CATALOG=[
+{code:"3364",name:"ESC. RÍO MARCOS",aliases:["RÍO MARCOS"]},
+{code:"3362",name:"ESC. SAN BUENAVENTURA",aliases:["SAN BUENAVENTURA"]},
+{code:"6345",name:"ESC. TRINIDAD ANEXA BRUJAS",aliases:["TRINIDAD ANEXA BRUJAS"]},
+{code:"3363",name:"ESC. TRINIDACITA ANEXA RÍO MARCOS",aliases:["TRINIDACITA ANEXA RÍO MARCOS"]},
+{code:"4082",name:"ESC. BENJAMÍN QUINTERO",aliases:["BENJAMÍN QUINTERO"]},
+{code:"4085",name:"ESC. JUANA DE JIMÉNEZ",aliases:["JUANA DE JIMÉNEZ"]},
+{code:"3321",name:"ESC. SAN JOSÉ DE MADROÑO",aliases:["SAN JOSÉ DE MADROÑO"]},
+{code:"3328",name:"ESC. CHARARE",aliases:["CHARARE"]},
+{code:"3257",name:"ESC. PLATANARES",aliases:["PLATANARES"]},
+{code:"3290",name:"ESC. UNICITO",aliases:["UNICITO"]},
+{code:"3304",name:"ESC. LORENZA G. DE LASSO",aliases:["LORENZA G. DE LASSO"]},
+{code:"3241",name:"C.E.B.G. BILINGÜE CLÍMACO DELGADO B.",aliases:["Clímaco Delgado Barahona", "C.E.B.G. Clímaco Delgado Barahona", "Climaco Delgado", "Clímaco Delgado B.", "BILINGÜE CLÍMACO DELGADO B."]},
+{code:"3239",name:"ESC. RÍO PIEDRA",aliases:["RÍO PIEDRA"]},
+{code:"3243",name:"ESC. BUENOS AIRES",aliases:["BUENOS AIRES"]},
+{code:"3201",name:"ESC. BETHEL",aliases:["BETHEL"]},
+{code:"3359",name:"ESC. RÍO PLATANARES",aliases:["RÍO PLATANARES"]},
+{code:"3348",name:"ESC. LA MINA",aliases:["LA MINA"]},
+{code:"3302",name:"C.E.B.G. BILINGÜE ICANTI",aliases:["BILINGÜE ICANTI"]},
+{code:"5050",name:"ESC. KAPANDI C.I.",aliases:["KAPANDI C.I."]},
+{code:"7595",name:"C.E.B.G. KUINUBDI",aliases:["KUINUBDI"]},
+{code:"4986",name:"ESC. NARGANDI C.I.",aliases:["NARGANDI C.I."]},
+{code:"3310",name:"ESC. PINTUPO C.I.",aliases:["PINTUPO C.I."]},
+{code:"3346",name:"ESC. PIRIA C.I.",aliases:["PIRIA C.I."]},
+{code:"3203",name:"ESC. PUERTO LIMÓN C.I.",aliases:["PUERTO LIMÓN C.I."]},
+{code:"5093",name:"ESC. TABARDI",aliases:["TABARDI"]},
+{code:"3356",name:"ESC. OQUENDO",aliases:["OQUENDO"]},
+{code:"3357",name:"ESC. PASIGA",aliases:["PASIGA"]},
+{code:"3282",name:"ESC. AGUA FRÍA",aliases:["AGUA FRÍA"]},
+{code:"3277",name:"ESC. AMBROYA",aliases:["AMBROYA"]},
+{code:"3344",name:"ESC. CERRO PLANO",aliases:["CERRO PLANO"]},
+{code:"3260",name:"ESC. COLONIA SANTEÑA",aliases:["COLONIA SANTEÑA"]},
+{code:"6361",name:"C.E.B.G. CRISTO REDENTOR",aliases:["CRISTO REDENTOR"]},
+{code:"3345",name:"ESC. PEÑAS BLANCAS A. V CHARCO RICO",aliases:["PEÑAS BLANCAS A. V CHARCO RICO"]},
+{code:"3274",name:"ESC. SAN JOSÉ DE LOMA BONITA",aliases:["SAN JOSÉ DE LOMA BONITA"]},
+{code:"3299",name:"ESC. VALLE DE CHARCO RICO",aliases:["VALLE DE CHARCO RICO"]},
+{code:"3214",name:"CENTRO EDUCATIVO BILINGÜE TORTÍ",aliases:["C.E. Tortí", "C.E.B. Tortí", "Tortí", "Bilingüe Tortí", "CENTRO EDUCATIVO BILINGÜE TORTÍ"]},
+{code:"3221",name:"ESC. BILINGÜE AKUA YALA C.I.",aliases:["BILINGÜE AKUA YALA C.I."]},
+{code:"3306",name:"ESC. BILINGÜE ATANACIO MORALES C.I.",aliases:["BILINGÜE ATANACIO MORALES C.I."]},
+{code:"5059",name:"ESC. DIWARSICUA C.I.",aliases:["DIWARSICUA C.I."]},
+{code:"3289",name:"ESC. IPETI CHOCO C.I.",aliases:["IPETI CHOCO C.I."]},
+{code:"3288",name:"ESC. SANTA ROSA DE LIMA",aliases:["SANTA ROSA DE LIMA"]},
+{code:"3294",name:"ESC. MAJE CORDILLERA C.I.",aliases:["MAJE CORDILLERA C.I."]},
+{code:"3250",name:"ESC. RÍO TIGRE ABAJO",aliases:["RÍO TIGRE ABAJO"]},
+{code:"3313",name:"ESC. QUEBRADA CALI",aliases:["QUEBRADA CALI"]},
+{code:"3207",name:"ESC. SAN FRANCISCO DE PIRIATI",aliases:["SAN FRANCISCO DE PIRIATI"]},
+{code:"3276",name:"C.E.B.G. BILINGÜE PIRIATÍ EMBERÁ",aliases:["Piriatí Emberá", "Piriati Embera", "BILINGÜE PIRIATÍ EMBERÁ"]},
+{code:"5775",name:"ESC. RÍO INDIO",aliases:["RÍO INDIO"]},
+{code:"3271",name:"ESC. PIRIATÍ ARRIBA",aliases:["PIRIATÍ ARRIBA"]},
+{code:"5430",name:"ESC. LA TOSCA",aliases:["LA TOSCA"]},
+{code:"3300",name:"ESC. CATRIGANDI",aliases:["CATRIGANDI"]},
+{code:"3307",name:"C.E.B.G. BILINGÜE LOMA DEL NARANJO",aliases:["Loma del Naranjo", "Loma de los Naranjos", "BILINGÜE LOMA DEL NARANJO"]},
+{code:"3246",name:"ESC. LA RIVIERA",aliases:["LA RIVIERA"]},
+{code:"3251",name:"ESC. TRES QUEBRADAS",aliases:["TRES QUEBRADAS"]},
+{code:"6354",name:"ESC. VALLE DE LA UNIÓN",aliases:["VALLE DE LA UNIÓN"]},
+{code:"3273",name:"ESC. SAN JUDAS TADEO",aliases:["SAN JUDAS TADEO"]},
+{code:"3297",name:"ESC. AGUA BUENA",aliases:["AGUA BUENA"]},
+{code:"3230",name:"ESC. CALOBRE ABAJO",aliases:["CALOBRE ABAJO"]},
+{code:"3339",name:"ESC. RÍO NAZARENO ANEXA",aliases:["RÍO NAZARENO ANEXA"]},
+{code:"3259",name:"ESC. LAS LAJITAS",aliases:["LAS LAJITAS"]},
+{code:"3334",name:"ESC. CHININA ABAJO",aliases:["CHININA ABAJO"]},
+{code:"3331",name:"ESC. CHININA ARRIBA",aliases:["CHININA ARRIBA"]},
+{code:"3248",name:"ESC. CIRO RIVERA",aliases:["CIRO RIVERA"]},
+{code:"3225",name:"ESC. JUAN BAÑON ADENTRO",aliases:["JUAN BAÑON ADENTRO"]},
+{code:"3208",name:"ESC. JUAN BAÑON AFUERA",aliases:["JUAN BAÑON AFUERA"]},
+{code:"3234",name:"ESC. LIMONADA",aliases:["LIMONADA"]},
+{code:"3229",name:"ESC. LIMONADA ARRIBA",aliases:["LIMONADA ARRIBA"]},
+{code:"3342",name:"ESC. MARCHENA",aliases:["MARCHENA"]},
+{code:"3330",name:"ESC. MARTINAMBO",aliases:["MARTINAMBO"]},
+{code:"3318",name:"ESC. VÍRGEN DEL CARMEN",aliases:["VÍRGEN DEL CARMEN"]},
+{code:"3309",name:"ESC. NUEVO PANAMÁ",aliases:["NUEVO PANAMÁ"]},
+{code:"3296",name:"ESC. PALMAS BELLAS",aliases:["PALMAS BELLAS"]},
+{code:"3285",name:"ESC. CAÑAZAS",aliases:["CAÑAZAS"]},
+{code:"3317",name:"ESC. SAN JOSÉ DE CAÑAZAS",aliases:["SAN JOSÉ DE CAÑAZAS"]},
+{code:"3256",name:"ESC. LA OCHO",aliases:["LA OCHO"]},
+{code:"5837",name:"ESC. PIGANDI",aliases:["PIGANDI"]},
+{code:"4987",name:"ESC. PIGANDI GRANDE",aliases:["PIGANDI GRANDE"]},
+{code:"3298",name:"ESC. LAS CLARITAS",aliases:["LAS CLARITAS"]},
+{code:"3072",name:"ESC. ISLA CONTADORA",aliases:["ISLA CONTADORA"]},
+{code:"3079",name:"ESC. JOSÉ DOLORES LUNA RIVERA",aliases:["JOSÉ DOLORES LUNA RIVERA"]},
+{code:"3070",name:"C.E.B.G. BILINGÜE JOSÉ IRENE MUÑOZ",aliases:["BILINGÜE JOSÉ IRENE MUÑOZ"]},
+{code:"3076",name:"ESC. LA ENSENADA",aliases:["LA ENSENADA"]},
+{code:"3077",name:"ESC. LA ESMERALDA",aliases:["LA ESMERALDA"]},
+{code:"3078",name:"ESC. LA GUINEA",aliases:["LA GUINEA"]},
+{code:"3080",name:"ESC. SABOGA",aliases:["SABOGA"]},
+{code:"6825",name:"CENTRO EDUCATIVO BILINGÜE ESTADO DE QATAR",aliases:["Estado de Qatar", "C.E.B. Estado de Qatar", "CENTRO EDUCATIVO BILINGÜE ESTADO DE QATAR"]},
+{code:"7314",name:"IPHE DE PANAMÁ ESTE",aliases:["IPHE DE PANAMÁ ESTE"]},
+{code:"3213",name:"COLEGIO VENANCIO FENOSA PASCUAL",aliases:["Venancio F. Pascual", "Venancio E. Pascual", "VFP", "Venancio Fenosa P.", "Venancio Fenosa Pascual", "COLEGIO VENANCIO FENOSA PASCUAL"]},
+{code:"3200",name:"C.E.B.G. BILINGÜE JOSÉ GABRIEL DUQUE",aliases:["José G. Duque", "José Gabriel Duque", "BILINGÜE JOSÉ GABRIEL DUQUE"]},
+{code:"3237",name:"C.E.B.G. BILINGÜE SANTA ISABEL",aliases:["Santa Isabel", "C.E.B.G. Santa Isabel", "BILINGÜE SANTA ISABEL"]},
+{code:"3238",name:"C.E.B.G. BILINGÜE SUPERACIÓN CAMPESINA",aliases:["BILINGÜE SUPERACIÓN CAMPESINA"]},
+{code:"3338",name:"C.E.B.G. BILINGÜE TIERRA PROMETIDA",aliases:["BILINGÜE TIERRA PROMETIDA"]},
+{code:"3232",name:"C.E.B.G. BILINGÜE UNIÓN DE AZUERO",aliases:["Unión de Azuero", "Union de Azuero", "BILINGÜE UNIÓN DE AZUERO"]},
+{code:"3212",name:"I.P.T. MÉXICO PANAMÁ",aliases:["México-Panamá", "I.P.T. México Panamá", "I.P.T. México - Panamá", "México Panamá", "I.P.T. MÉXICO PANAMÁ"]},
+{code:"3325",name:"C.E.B.G. BILINGÜE JOSÉ DEL C. ECHEVERS",aliases:["BILINGÜE JOSÉ DEL C. ECHEVERS"]},
+{code:"3329",name:"ESC. LA ZAHINA",aliases:["LA ZAHINA"]},
+{code:"3323",name:"ESC. CORPUS CRISTI",aliases:["CORPUS CRISTI"]},
+{code:"3305",name:"ESC. LLANO CARTI",aliases:["LLANO CARTI"]},
+{code:"3361",name:"C.E. PLAYA DE LAS MERCEDES",aliases:["PLAYA DE LAS MERCEDES"]},
+{code:"3355",name:"ESC. RÍO HONDO",aliases:["RÍO HONDO"]},
+{code:"3312",name:"ESC. PLAYA CHUZO ADENTRO",aliases:["PLAYA CHUZO ADENTRO"]},
+{code:"3316",name:"ESC. PLAYA CHUZO CENTRO",aliases:["PLAYA CHUZO CENTRO"]},
+{code:"3253",name:"ESC. PLAYA CHUZO AFUERA",aliases:["PLAYA CHUZO AFUERA"]},
+{code:"3292",name:"ESC. HIGUERONAL CABECERA",aliases:["HIGUERONAL CABECERA"]},
+{code:"3249",name:"ESC. HIGUERÓNAL ARRIBA",aliases:["HIGUERÓNAL ARRIBA"]},
+{code:"3280",name:"ESC. LOMA BONITA",aliases:["LOMA BONITA"]},
+{code:"3314",name:"ESC. CURTI",aliases:["CURTI"]},
+{code:"3286",name:"ESC. BILINGÜE MARÍA ELENA DÍAZ",aliases:["BILINGÜE MARÍA ELENA DÍAZ"]},
+{code:"3275",name:"ESC. RÍO TORTI ABAJO",aliases:["RÍO TORTI ABAJO"]},
+{code:"3278",name:"ESC. SAN JOSÉ DE TORTI",aliases:["SAN JOSÉ DE TORTI"]},
+{code:"3226",name:"ESC. UNIÓN VERAGUENSE",aliases:["UNIÓN VERAGUENSE"]},
+{code:"3231",name:"ESC. QUEBRADA TRAPICHE",aliases:["QUEBRADA TRAPICHE"]},
+{code:"3337",name:"ESC. MANUEL SANTOS",aliases:["MANUEL SANTOS"]},
+{code:"3341",name:"ESC. RÍO LAGARTO",aliases:["RÍO LAGARTO"]},
+{code:"3340",name:"ESC. SAN JOSÉ DE CHININA",aliases:["SAN JOSÉ DE CHININA"]},
+{code:"3228",name:"ESC. EL TIGRE ABAJO",aliases:["EL TIGRE ABAJO"]},
+{code:"3333",name:"ESC. UNIÓN HERRERANA",aliases:["UNIÓN HERRERANA"]},
+{code:"3336",name:"ESC. ENSENADA RICA",aliases:["ENSENADA RICA"]},
+{code:"3335",name:"ESC. EL JAGUITO",aliases:["EL JAGUITO"]},
+{code:"3347",name:"C.E.B.G. 10 DE NOVIEMBRE",aliases:["10 DE NOVIEMBRE"]},
+{code:"3354",name:"ESC. EL HATO",aliases:["EL HATO"]},
+{code:"3365",name:"ESC. GONZALO VÁSQUEZ",aliases:["GONZALO VÁSQUEZ"]},
+{code:"3360",name:"ESC. JOSÉ SOTERO ANGULO",aliases:["JOSÉ SOTERO ANGULO"]},
+{code:"3358",name:"ESC. MAJE - CHIMÁN",aliases:["MAJE - CHIMÁN"]},
+];
+function normSiace(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function renderSiace(){const q=normSiace($('siaceQuery')?.value||'');const rows=SIACE_CATALOG.filter(x=>!q||normSiace(x.code).includes(q)||normSiace(x.name).includes(q)||x.aliases.some(a=>normSiace(a).includes(q)));$('siaceCount').value=rows.length;$('siaceBody').innerHTML=rows.map(x=>`<tr><td>${esc(x.code)}</td><td>${esc(x.name)}</td><td>${esc(x.aliases.join('; '))}</td></tr>`).join('')||'<tr><td colspan="3">No se encontraron centros.</td></tr>'}
+// Normalización central de centros: no modifica los registros históricos; solo unifica filtros, estadísticas y salidas.
+function canonicalSchool(value){
+ const raw=String(value||'').trim(); if(!raw)return 'Sin colegio';
+ const q=normSiace(raw); if(!q)return 'Sin colegio';
+ let exact=SIACE_CATALOG.find(x=>normSiace(x.code)===q||normSiace(x.name)===q||x.aliases.some(a=>normSiace(a)===q));
+ if(exact)return exact.name;
+ // Fuzzy matching solo si una variante suficientemente específica contiene la otra.
+ const candidates=[];
+ for(const x of SIACE_CATALOG){
+  const names=[x.name,...x.aliases].map(normSiace).filter(a=>a.length>=7);
+  for(const a of names){
+   if((a.includes(q)||q.includes(a)) && Math.min(a.length,q.length)>=7){candidates.push({x,score:Math.min(a.length,q.length)/Math.max(a.length,q.length)});}
+  }
+ }
+ candidates.sort((a,b)=>b.score-a.score);
+ if(candidates.length && candidates[0].score>=0.72 && (!candidates[1]||candidates[0].score-candidates[1].score>=0.08)) return candidates[0].x.name;
+ return raw.toLocaleUpperCase('es-PA');
+}
+function schoolCode(value){const canonical=canonicalSchool(value);const found=SIACE_CATALOG.find(x=>x.name===canonical);return found?found.code:''}
+function schoolOptions(records){return [...new Set(records.map(r=>canonicalSchool(r.school)))].sort((a,b)=>a.localeCompare(b,'es'));}
+
+
+function utilityPeople(){const group=$('utilityGroup')?.value||'all';let src=db.records.filter(r=>group==='all'||r.week===group);const seen=new Map();src.forEach(r=>{const k=norm(r.cedula)||norm(r.name+' '+r.school);if(!seen.has(k))seen.set(k,r)});return [...seen.values()].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'))}
+function openUtilities(btn){tab('utilities',btn);renderUtilitySheets();showUtilitySheet('specialty')}
+function showUtilitySheet(which){['specialty','corrections'].forEach(k=>{const el=$('utilitySheet'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.style.display=k===which?'block':'none'});document.querySelectorAll('#utilities .utility-sheet').forEach(el=>el.classList.remove('print-target'));const target=$('utilitySheet'+which.charAt(0).toUpperCase()+which.slice(1));if(target)target.classList.add('print-target')}
+function renderUtilitySheets(){const sel=$('utilityGroup');if(!sel)return;const current=sel.value;const options=['<option value="all">Todos los grupos (sin duplicados)</option>',...(db.weeks||[]).map(w=>`<option value="${esc(w.id)}">${esc(w.name||w.id)}</option>`)];sel.innerHTML=options.join('');if([...sel.options].some(o=>o.value===current))sel.value=current;const chosen=sel.value;const chosenWeek=(db.weeks||[]).find(w=>String(w.id)===String(chosen));const groupLabel=chosen==='all'?'TODOS LOS GRUPOS (SIN DUPLICADOS)':String(chosenWeek?.name||chosenWeek?.id||chosen);const people=utilityPeople();const specialty=$('utilitySpecialtyContent'),corrections=$('utilityCorrectionsContent');document.querySelectorAll('#utilities .print-heading h2').forEach(h=>{if(h.id==='utilityPrintGroupPosition')h.remove()});if(!people.length){const empty='<p>No hay participantes para el grupo seleccionado.</p>';specialty.innerHTML=corrections.innerHTML=empty;return}specialty.innerHTML=`<div class="print-heading"><h1>ENTRE PARES PANAMÁ ESTE</h1><h2>SEDE: VENANCIO FENOSA PASCUAL · GRUPO NACIONAL: 62</h2><h2>GRUPO SELECCIONADO: ${esc(groupLabel)}</h2><h2>Registro de especialidades docentes</h2><p>Escriba su especialidad o las especialidades que imparte.</p></div><table class="specialty-table"><thead><tr><th>N.º</th><th>Nombre y apellidos</th><th>Especialidad o especialidades</th></tr></thead><tbody>${people.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name||'')}</td><td class="blank-cell"></td></tr>`).join('')}</tbody></table>`;corrections.innerHTML=`<div class="print-heading"><h1>ENTRE PARES PANAMÁ ESTE</h1><h2>SEDE: VENANCIO FENOSA PASCUAL · GRUPO NACIONAL: 62</h2><h2>GRUPO SELECCIONADO: ${esc(groupLabel)}</h2><h2>Correcciones de datos</h2><p>Revise sus datos y escriba qué información debe corregirse. No es necesario firmar.</p></div><table class="correction-table"><thead><tr><th>N.º</th><th>Nombre y apellidos</th><th>Cédula</th><th>N.º de posición</th><th>Dato que debe corregirse</th><th>Corrección indicada por el docente</th></tr></thead><tbody>${people.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.name||'')}</td><td>${esc(r.cedula||'')}</td><td></td><td></td><td></td></tr>`).join('')}</tbody></table>`}
+function printUtilitySheet(){if(!requireNoVisitor())return;if(!$('utilities').classList.contains('active'))return;const target=document.querySelector('#utilities .utility-sheet.print-target');if(!target){alert('Selecciona primero una hoja para imprimir.');return}window.print()}
+function tab(id,b){if(id==='users'&&!requireAdmin())return;if(currentRole==='perfeccionamiento'&&id==='incidents'){alert('El perfil de Perfeccionamiento no tiene acceso a Incidencias y observaciones.');return}if(isVisitor()&&!visitorPermissions().includes(id)){alert('Esta sección no está habilitada para tu cuenta.');return}document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('aside button').forEach(x=>x.classList.remove('active'));if(b)b.classList.add('active');const groupPicker=$('activeWeekWrap');if(groupPicker)groupPicker.style.display=(id==='analytics')?'none':'';if(id==='attendance')renderAttendance();if(id==='absent')renderAbsentTeachers();if(id==='repeats')renderRepeatedTeachers();if(id==='siace')renderSiace();if(id==='utilities')renderUtilitySheets();if(id==='users')loadManagedUsers();window.scrollTo(0,0)}
+function clearAllParticipants(){if(!requireWrite())return;
+ if(!confirm('ATENCIÓN: se eliminarán todos los participantes de todos los grupos y toda su asistencia. Se conservarán los grupos y las incidencias. ¿Deseas continuar?'))return;
+ if(!confirm('Confirmación final: ¿borrar definitivamente todos los participantes y asistencias? Esta acción no se puede deshacer.'))return;
+ db.records=[];
+ save();
+ refresh();
+ alert('Se eliminaron todos los participantes y sus asistencias. Los grupos y las incidencias se conservaron.');
+}
+function exportRows(){
+ const scope=$('exportScope').value,group=$('exportGroup').value,school=$('exportSchool').value;
+ return db.records.filter(r=>(scope!=='group'||r.week===group)&&(scope!=='school'||canonicalSchool(r.school)===school)).map(r=>({...r,school:canonicalSchool(r.school)}));
+}
+function exportAttendanceStatus(r){return String(r.weeklyAttendance||'').trim().toUpperCase()==='P'?'Asistió':'No asistió'}
+function exportAttendanceSummary(rows){const present=rows.filter(r=>exportAttendanceStatus(r)==='Asistió').length;return {present,absent:rows.length-present,total:rows.length}}
+function exportPieMarkup(rows,print=false){
+ const d=exportAttendanceSummary(rows),total=d.total||1,size=print?156:116,cx=size/2,cy=size/2,r=print?55:41,circ=2*Math.PI*r;
+ const parts=[{v:d.present,c:'#087eaa'},{v:d.absent,c:'#c43d4b'}];let offset=0;
+ const rings=parts.map(x=>{const len=x.v/total*circ,el=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="${print?25:20}" stroke-dasharray="${len} ${circ-len}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;offset+=len;return el}).join('');
+ return `<div class="export-attendance-summary" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:16px;margin:12px 0;border:1px solid ${print?'#d5e2eb':'var(--line)'};border-radius:12px;background:${print?'#fff':'var(--panel2)'};color:${print?'#18324b':'var(--text)'}"><div style="width:${size}px;height:${size}px;position:relative;flex:none"><svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e0eaf1" stroke-width="${print?25:20}"/>${rings}<circle cx="${cx}" cy="${cy}" r="${print?39:29}" fill="${print?'#fff':'var(--panel)'}"/><text x="${cx}" y="${cy-1}" text-anchor="middle" dominant-baseline="middle" font-size="${print?20:16}" font-weight="700" fill="${print?'#18324b':'var(--text)'}">${d.total?Math.round(d.present/d.total*100):0}%</text></svg></div><div style="min-width:200px;flex:1"><h3 style="margin:0 0 10px">Resumen de asistencia semanal</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px"><div><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#087eaa;margin-right:6px"></span>Asistieron <b>${d.present}</b></div><div><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#c43d4b;margin-right:6px"></span>No asistieron <b>${d.absent}</b></div><div><b>Total de docentes:</b> ${d.total}</div></div><p style="margin:8px 0 0;font-size:12px;opacity:.8">Porcentaje calculado sobre todos los docentes del listado.</p></div></div>`
+}
+function renderExportPreview(){
+ if(!$('exportScope'))return;
+ const scope=$('exportScope').value;
+ $('exportGroupWrap').classList.toggle('hide',scope!=='group');
+ $('exportSchoolWrap').classList.toggle('hide',scope!=='school');
+ const rows=exportRows(),groups=[...new Set(rows.map(r=>r.week))],schools=[...new Set(rows.map(r=>canonicalSchool(r.school)))];
+ $('exportCount').textContent=rows.length;$('exportGroups').textContent=groups.length;$('exportSchools').textContent=schools.length;
+ const attendance=$('exportFormat').value==='attendance';
+ const heads=attendance?['Nombre','Cédula','Centro educativo','Grupo','Asistencia semanal']:['Nombre','Cédula','Centro educativo','Grupo','Fecha inicial','Fecha final'];
+ const table='<table><thead><tr>'+heads.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+[r.name,r.cedula,r.school||'—',r.week,...(attendance?[exportAttendanceStatus(r)]:[datefmt(r.start),datefmt(r.end)])].map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(rows.length>100?'<p class="muted">Vista previa limitada a 100 registros; la exportación incluye todos los resultados.</p>':'');
+ $('exportPreview').innerHTML=(attendance?exportPieMarkup(rows):'')+table;
+}
+function exportFilteredCSV(){if(!requireNoVisitor())return;
+ const rows=exportRows(),attendance=$('exportFormat').value==='attendance';
+ const heads=attendance?['Docente','Cédula','Centro educativo','Grupo','Asistencia semanal']:['Docente','Cédula','Centro educativo','Grupo','Fecha inicial','Fecha final'];
+ const data=rows.map(r=>attendance?[r.name,r.cedula,r.school||'Sin colegio',r.week,exportAttendanceStatus(r)]:[r.name,r.cedula,r.school||'Sin colegio',r.week,r.start||'',r.end||'']);
+ const title=$('exportScope').value==='group'?$('exportGroup').value:$('exportScope').value==='school'?$('exportSchool').value:'Todos los participantes';
+ const summary=attendance?exportAttendanceSummary(rows):null;
+ const titleBlock='<div class="excel-title"><h1>ENTRE PARES PANAMÁ ESTE</h1><h2>Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial</h2><p>Facilitadores: José Santos y Esteban Arosemena</p><p>Sede: Venancio Fenosa Pascual · Grupo nacional: 62</p></div>';
+ const chart=attendance?exportPieMarkup(rows,true):'';
+ const summaryBlock=summary?'<table class="summary"><tr><td>PARTICIPANTES</td><td>ASISTIERON</td><td>NO ASISTIERON</td></tr><tr><th>'+summary.total+'</th><th>'+summary.present+'</th><th>'+summary.absent+'</th></tr></table>':'';
+ const tableRows=data.map((row,i)=>'<tr>'+row.map((v,j)=>'<td class="c'+j+'">'+esc(v||'—')+'</td>').join('')+'</tr>').join('');
+ const html='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Informe</x:Name><x:WorksheetOptions><x:DisplayGridlines>0</x:DisplayGridlines><x:FitToPage/><x:Print><x:ValidPrinterInfo/><x:PaperSizeIndex>5</x:PaperSizeIndex><x:Scale>90</x:Scale></x:Print></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>body{font-family:Calibri,Arial,sans-serif;color:#20352c}.excel-title{text-align:center;border-bottom:3px solid #087eaa;padding:10px 0 12px;margin:0 0 14px}.excel-title h1{font-size:20pt;color:#102b4e;margin:0;font-weight:bold}.excel-title h2{font-size:12pt;color:#087eaa;margin:5px 0}.excel-title p{font-size:10pt;margin:3px 0;color:#526a80}.report-heading{font-size:15pt;color:#102b4e;font-weight:bold;margin-top:10px}.meta{color:#526a80;font-size:10pt}.summary{border-collapse:collapse;margin:12px 0;width:100%;background:#e7f4f9}.summary td,.summary th{border:1px solid #c6dbe7;padding:8px;text-align:center}.summary td{font-size:9pt;color:#526a80;background:#e2f5fa}.summary th{font-size:15pt;color:#102b4e;background:#eef8fb}.export-attendance-summary{border:1px solid #d5e2eb;background:#fff;color:#18324b;padding:10px;margin:10px 0}.table{border-collapse:collapse;width:100%;font-size:11pt;margin-top:10px}.table th{background:#087eaa;color:#fff;font-weight:bold;border:1px solid #c6dbe7;padding:9px;text-align:left}.table td{border:1px solid #c6dbe7;padding:7px;mso-number-format:"\\@"}.table tr:nth-child(even) td{background:#edf7fb}.table .c0{font-weight:bold;color:#102b4e}.table .c1{mso-number-format:"\\@";white-space:nowrap}.foot{color:#61758a;font-size:9pt;margin-top:14px}</style></head><body><div>'+titleBlock+'</div><div class="report-heading">'+(attendance?'INFORME DE ASISTENCIA SEMANAL':'LISTADO DE PARTICIPANTES')+' — '+esc(title)+'</div><p class="meta">Fecha de emisión: '+new Date().toLocaleDateString('es-PA')+' &nbsp; | &nbsp; Total de registros: '+rows.length+'</p>'+summaryBlock+chart+'<table class="table"><thead><tr>'+heads.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table><p class="foot">ENTRE PARES PANAMÁ ESTE · Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial · Facilitadores: José Santos y Esteban Arosemena</p></body></html>';
+ download('\uFEFF'+html,'Entre_Pares_'+$('exportScope').value+(attendance?'_Asistencia':'_Participantes')+'.xls','application/vnd.ms-excel');
+}
+function printFilteredList(){
+ const rows=exportRows(),attendance=$('exportFormat').value==='attendance';
+ const title=$('exportScope').value==='group'?$('exportGroup').value:$('exportScope').value==='school'?$('exportSchool').value:'Todos los participantes';
+ const heads=attendance?['Docente','Cédula','Centro educativo','Asistencia semanal']:['Nombre','Cédula','Centro educativo','Grupo'];
+ const trs=rows.map(r=>'<tr>'+[r.name,r.cedula,r.school||'—',...(attendance?[exportAttendanceStatus(r)]:[r.week])].map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('');
+ const chart=attendance?exportPieMarkup(rows,true):'';
+ const summary=attendance?`<p class="summary">Total: ${rows.length} · Asistieron: ${exportAttendanceSummary(rows).present} · No asistieron: ${exportAttendanceSummary(rows).absent}</p>`:'';
+ const w=window.open('','_blank');if(!w){alert('Permite las ventanas emergentes para generar la lista imprimible.');return}
+ w.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>*{box-sizing:border-box}@page{size:legal portrait;margin:0.32in}body{font:11px Arial,sans-serif;margin:0;padding:0;color:#18324b}header{border-bottom:2px solid #087eaa;padding-bottom:6px;margin-bottom:8px}h1{font-size:19px;margin:0 0 3px;color:#102b4e}h2{font-size:14px;margin:5px 0}.report-logos{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:58px;margin-bottom:8px}.report-logos img{display:block!important;width:82px!important;height:62px!important;max-width:82px!important;max-height:62px!important;object-fit:contain!important;opacity:.78;flex:0 0 70px!important}.report-logos .report-title{flex:1;min-width:0;text-align:center}.report-logos .report-title h1{font-size:14px;margin:0 0 2px}.report-logos .report-title h2{font-size:9px;margin:2px 0}.report-logos .report-title p{font-size:8px;margin:2px 0}p{margin:3px 0 7px}.summary{font-size:11px;font-weight:bold;background:#eaf6fa;padding:6px;border-radius:5px}table{border-collapse:collapse;width:100%;font-size:10.5px;margin-top:6px}th,td{border:1px solid #c6dbe7;padding:4px 5px;text-align:left;line-height:1.15}th{background:#e2f5fa;color:#102b4e;font-size:10px}td:first-child{font-size:12px;font-weight:600}.export-attendance-summary{margin:6px 0!important;padding:7px!important;gap:10px!important}.footer{margin-top:8px;font-size:9px;color:#61758a}.print-actions{display:flex;align-items:center;gap:14px;margin:10px 0;padding:10px;background:#e2f5fa;border:1px solid #c6dbe7;border-radius:8px;color:#102b4e}.print-actions button{background:#087eaa;color:#fff;border:0;border-radius:6px;padding:9px 13px;font-weight:bold;cursor:pointer}@media print{.print-actions{display:none}.export-attendance-summary{break-inside:avoid}table{break-inside:auto}tr{break-inside:avoid}}</style></head><body><header>'+reportLogoHeader()+'</header><h2>Informe '+(attendance?'de asistencia semanal':'de participantes')+' — '+esc(title)+'</h2><p>Fecha de emisión: '+new Date().toLocaleDateString('es-PA')+'</p>'+summary+chart+'<div class="print-actions"><button onclick="window.print()">📄 Imprimir / Guardar como PDF</button><span>En el cuadro de impresión, selecciona <b>Guardar como PDF</b> como destino.</span></div><table><thead><tr>'+heads.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+trs+'</tbody></table><p class="footer">Informe generado por Control de grupos Entre Pares · Panamá Este</p></body></html>');
+ w.document.close();
+}
+function updateExportSelectors(){
+ if(!$('exportGroup'))return;
+ const oldg=$('exportGroup').value,olds=$('exportSchool').value;
+ $('exportGroup').innerHTML=db.weeks.map(w=>'<option value="'+esc(w.id)+'">'+esc(w.id)+'</option>').join('');
+ $('exportSchool').innerHTML=schoolOptions(db.records).map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
+ if([...$('exportGroup').options].some(o=>o.value===oldg))$('exportGroup').value=oldg;
+ if([...$('exportSchool').options].some(o=>o.value===olds))$('exportSchool').value=olds;
+ renderExportPreview();
+}
+function init(){
+ if(!db.incidents)db.incidents=[];
+ if(!db.weeks.length){for(let i=1;i<=18;i++)db.weeks.push({id:'Grupo '+i,name:'Grupo '+i,start:'',end:''})}
+ // Migrate older version's records if present in same key shape is not assumed; keep this app's records separate.
+ let today=new Date().toISOString().slice(0,10);$('start').value=today;$('end').value=today;$('idate').value=today;
+ refresh();loadWeekForm();renderReportLogoPreviews()
+}
+function refresh(){
+ let opts=db.weeks.map(w=>`<option value="${esc(w.id)}">${esc(w.id)} — ${esc(w.name)}</option>`).join('');
+ ['activeWeek','pg','ag','ig','ifilter'].forEach(id=>{let el=$(id),old=el.value;el.innerHTML=(['pg','ag','ifilter'].includes(id)?'<option value="">Todas las semanas</option>':'')+opts;if([...el.options].some(o=>o.value===old))el.value=old});
+ const attendanceGroupEl=$('attendanceGroup');if(attendanceGroupEl){const previousAttendanceGroup=attendanceGroupEl.value;attendanceGroupEl.innerHTML=opts;if([...attendanceGroupEl.options].some(o=>o.value===previousAttendanceGroup))attendanceGroupEl.value=previousAttendanceGroup;else if([...attendanceGroupEl.options].some(o=>o.value===active()))attendanceGroupEl.value=active();else attendanceGroupEl.value=attendanceGroupEl.options[0]?.value||'';}
+ let rr=rows();$('homeAll').textContent=db.records.length;$('homeIncidents').textContent=db.incidents.length;$('homeGroupCount').textContent=db.weeks.length;const uniqueSchools=new Set(db.records.map(r=>canonicalSchool(r.school)).filter(s=>s&&s.trim()));$('homeSchoolCount').textContent=uniqueSchools.size;
+ updateHomeAttendanceStats();
+ $('homeGroups').innerHTML=db.weeks.map(w=>{let n=rows(w.id).length;return `<tr><td><b>${esc(w.id)}</b></td><td>${datefmt(w.start)} – ${datefmt(w.end)}</td><td>${n}</td><td><span class="pill">${n?'Con participantes':'Sin lista'}</span></td><td><button class="action light" onclick="chooseWeek('${esc(w.id)}')">Abrir</button></td><td><button class="action danger" onclick="deleteGroup('${esc(w.id)}')">Eliminar</button></td></tr>`}).join('');
+ $('weekAlert').innerHTML='';
+ renderPeople();renderAttendance();renderAnalytics();renderRepeatedTeachers();renderIncidents();updateSchoolFilters();updateExportSelectors();updateWeeklyAttendanceReportSelector();updateAbsentFilters();renderAbsentTeachers();applyRoleUi()
+}
+function openAllPeople(btn){$('pgWrap').style.display='';$('pg').value='';$('pq').value='';$('ps').value='';renderPeople();tab('people',btn);$('people').querySelector('h2').textContent='Todos los participantes';$('people').querySelector('p.muted').textContent='Busca y filtra participantes de todos los grupos por nombre, cédula o centro educativo.'}
+function chooseWeek(id){$('activeWeek').value=id;refresh();loadWeekForm();$('pq').value='';$('pg').value=id;$('ps').value='';renderPeople();$('pgWrap').style.display='none';tab('people',document.querySelector('[data-tab=people]'));$('people').querySelector('h2').textContent='Participantes de '+id;$('people').querySelector('p.muted').textContent='Lista exclusiva del grupo seleccionado. El filtro por todos los grupos está oculto.'}
+function deleteGroup(id){if(!requireWrite())return;
+ const n=rows(id).length;
+ if(!confirm('¿Seguro que deseas eliminar '+id+'? Se eliminarán también sus '+n+' participantes y sus registros de asistencia.'))return;
+ if(!confirm('Confirmación final: esta acción no se puede deshacer. ¿Eliminar '+id+' definitivamente?'))return;
+ db.weeks=db.weeks.filter(w=>w.id!==id);
+ db.records=db.records.filter(r=>r.week!==id);
+ db.incidents=(db.incidents||[]).filter(x=>x.week!==id);
+ if(!db.weeks.length){db.weeks.push({id:'Grupo 1',name:'Grupo 1',start:'',end:''});}
+ if($('activeWeek').value===id)$('activeWeek').value=db.weeks[0].id;
+ save();refresh();loadWeekForm();
+}
+let participantEditOriginalCedula='';
+function editParticipant(id){
+ const r=db.records.find(x=>String(x.id)===String(id));if(!r)return;
+ $('editParticipantId').value=String(r.id);$('editParticipantName').value=r.name||'';$('editParticipantCedula').value=r.cedula||'';$('editParticipantSchool').value=r.school||'';
+ participantEditOriginalCedula=String(r.cedula||'').trim();$('editParticipantAllRecords').checked=true;
+ const same=db.records.filter(x=>norm(x.cedula)===norm(participantEditOriginalCedula));
+ $('editParticipantHistoryHint').textContent=same.length>1?'Se encontraron '+same.length+' registros con esta cédula, en '+new Set(same.map(x=>x.week)).size+' grupo(s). Puedes corregirlos juntos para conservar el historial del docente.':'Solo se encontró este registro con la cédula actual.';
+ $('editParticipantMessage').textContent='';const dl=$('editSiaceSchools');if(dl)dl.innerHTML=SIACE_CATALOG.map(x=>'<option value="'+esc(x.name)+'"></option>').join('');
+ $('participantEditModal').classList.remove('hide');setTimeout(()=>$('editParticipantName').focus(),0);
+}
+function closeParticipantEditor(){$('participantEditModal').classList.add('hide');$('participantEditForm').reset();participantEditOriginalCedula='';}
+function saveParticipantEdit(e){if(!requireWrite())return;
+ if(e)e.preventDefault();const id=$('editParticipantId').value,current=db.records.find(x=>String(x.id)===String(id));if(!current)return;
+ const name=$('editParticipantName').value.trim(),cedula=$('editParticipantCedula').value.trim(),rawSchool=$('editParticipantSchool').value.trim();
+ if(!name||!cedula){$('editParticipantMessage').textContent='El nombre y la cédula son obligatorios.';return;}
+ const targets=$('editParticipantAllRecords').checked?db.records.filter(x=>norm(x.cedula)===norm(participantEditOriginalCedula)):[current],targetSet=new Set(targets);
+ const conflict=db.records.find(x=>!targetSet.has(x)&&x.week===current.week&&norm(x.cedula)===norm(cedula));
+ if(conflict&&!confirm('Ya existe otro registro con esa cédula en '+current.week+'. ¿Deseas guardar de todos modos?'))return;
+ const match=SIACE_CATALOG.find(x=>normSiace(x.code)===normSiace(rawSchool)||normSiace(x.name)===normSiace(rawSchool)||x.aliases.some(a=>normSiace(a)===normSiace(rawSchool)));const school=match?match.name:rawSchool;
+ targets.forEach(r=>{r.name=name;r.cedula=cedula;r.school=school;});save();closeParticipantEditor();refresh();alert('Datos corregidos. '+targets.length+' registro(s) actualizado(s). Se conservaron la asistencia, el grupo y el historial.');
+}
+function loadWeekForm(){let w=wk(active());if(!w)return;let m=w.id.match(/\d+/);$('weekNum').value=m?m[0]:'';$('start').value=w.start||'';$('end').value=w.end||'';}
+function createWeek(){if(!requireWrite())return;
+ let n=parseInt($('weekNum').value,10),id='Grupo '+n,start=$('start').value,end=$('end').value;
+ if(!n||n<1||!start||!end||end<start){
+  $('weekMessage').innerHTML='<div class="alert">Indica un número de grupo y fechas válidas.</div>';return;
+ }
+ let existing=wk(id);
+ if(existing){
+  const hasRecords=rows(id).length>0;
+  if(hasRecords&&(existing.start!==start||existing.end!==end)){
+   if(!confirm(id+' ya tiene participantes. ¿Deseas actualizar las fechas de ese mismo grupo?'))return;
+  }
+  existing.name=id;existing.start=start;existing.end=end;
+ }else{
+  db.weeks.push({id:id,name:id,start:start,end:end});
+  db.weeks.sort((a,b)=>parseInt(a.id.match(/\d+/)[0])-parseInt(b.id.match(/\d+/)[0]));
+ }
+ save();$('activeWeek').value=id;refresh();$('activeWeek').value=id;loadWeekForm();
+ $('weekMessage').innerHTML='<div class="pill">'+esc(id)+' guardado y seleccionado. Ya puedes pegar la lista de docentes en el cuadro de abajo.</div>';
+ $('paste').focus();$('paste').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function parsePaste(){
+ let text=$('paste').value.trim();if(!text)return [];
+ const clean=v=>(v||'').replace(/^\uFEFF/,'').trim();
+ const rows=text.split(/\r?\n/).map(line=>line.includes('\t')?line.split('\t').map(clean):line.split(';').map(clean)).filter(a=>a.some(Boolean));
+ const headerWords=/^(n\.?º?|numero|nombre|apellido|cedula|c[eé]dula|colegio|centro educativo)$/i;
+ return rows.filter(a=>{
+   const joined=a.join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+   return !(/^(n\.?º?|numero)\s+(nombre)\s+(apellido)\s+(cedula)\s+(centro educativo|colegio)$/.test(joined)||a.every(v=>!v||headerWords.test(v)));
+ }).map(a=>{
+   // Admite el formato de la aplicación (Nombre completo | Cédula | Centro)
+   // y la tabla de Excel/PDF (N.º | Nombre | Apellido | Cédula | Centro).
+   if(a.length>=5 && /^\d+$/.test(a[0]) && /\d/.test(a[3])){
+     return {name:[a[1],a[2]].filter(Boolean).join(' ').trim(),cedula:a[3],school:a.slice(4).join(' ').trim(),email:''};
+   }
+   if(a.length>=4 && /^\d+$/.test(a[0]) && /\d/.test(a[2])){
+     return {name:a[1],cedula:a[2],school:a.slice(3).join(' ').trim(),email:''};
+   }
+   return {name:a[0]||'',cedula:a[1]||'',school:a[2]||'',email:a[3]||''};
+ }).filter(r=>r.name&&r.cedula&&/\d/.test(r.cedula));
+}
+function previous(r){return db.records.filter(x=>x.cedula&&norm(x.cedula)===norm(r.cedula)&&x.week!==active())}
+function preview(){if(!requireNoVisitor())return;
+ let w=wk(active());if(!w){alert('Crea o selecciona una semana primero.');return}
+ if(!w.start||!w.end){alert('Primero guarda las fechas de esta semana.');tab('weeks',document.querySelector('[data-tab=weeks]'));return}
+ pending=parsePaste();if(!pending.length){$('importAlert').innerHTML='<div class="alert">No pude leer la lista. Pega la tabla con columnas N.º, Nombre, Apellido, Cédula y Centro educativo, o Nombre, Cédula y Centro educativo.</div>';return}
+ let existing=rows().map(r=>norm(r.cedula));let dup=pending.filter(r=>previous(r).length),inGroup=pending.filter(r=>existing.includes(norm(r.cedula)));
+ $('importAlert').innerHTML=`<div class="alert">Lista: ${pending.length} filas. Coincidencias con grupos anteriores: ${dup.length}. Ya están en este grupo: ${inGroup.length}.</div>`;
+ $('preview').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Colegio</th><th>Historial</th></tr></thead><tbody>${pending.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cedula)}</td><td>${esc(canonicalSchool(r.school))}</td><td>${previous(r).length?'⚠️ '+esc([...new Set(previous(r).map(x=>x.week))].join(', ')):'Nuevo'}</td></tr>`).join('')}</tbody></table></div><div class="actions"><button class="action" onclick="confirmImport()">Guardar en ${esc(active())}</button><button class="action light" onclick="$('preview').innerHTML='';pending=[]">Cancelar</button></div>`;
+}
+function confirmImport(){if(!requireWrite())return;
+ let w=wk(active()),existing=rows().map(r=>norm(r.cedula)),added=0,skipped=0;
+ pending.forEach(r=>{if(existing.includes(norm(r.cedula))){skipped++;return}db.records.push({...r,school:canonicalSchool(r.school),week:active(),start:w.start,end:w.end,attendance:{},id:Date.now()+Math.random()});existing.push(norm(r.cedula));added++});
+ save();$('paste').value='';$('preview').innerHTML='';$('importAlert').innerHTML=`<div class="pill">Guardados ${added}; omitidos porque ya estaban en esta semana: ${skipped}.</div>`;pending=[];refresh();tab('people',document.querySelector('[data-tab=people]'))
+}
+function renderPeople(){
+ if(!$('peopleBody'))return;let q=norm($('pq').value),g=$('pg').value,s=$('ps').value;
+ let rr=db.records.filter(r=>(!q||norm(r.name+' '+r.cedula+' '+canonicalSchool(r.school)).includes(q))&&(!g||r.week===g)&&(!s||canonicalSchool(r.school)===s));
+ $('pc').value=rr.length;$('peopleBody').innerHTML=rr.map(r=>{let p=previous(r);return `<tr><td>${esc(r.name)}</td><td>${esc(r.cedula)}</td><td>${esc(canonicalSchool(r.school))}</td><td>${esc(r.week)}</td><td>${datefmt(r.start)} – ${datefmt(r.end)}</td><td>${p.length?'Sí: '+esc([...new Set(p.map(x=>x.week))].join(', ')):'No detectada'}</td><td><button class="action light" onclick="editParticipant('${String(r.id).replace(/'/g, '')}')">Editar</button></td></tr>`}).join('')||'<tr><td colspan="7">Sin resultados.</td></tr>'
+}
+function daysFor(w){
+ if(!w||!w.start||!w.end)return [];
+ let a=new Date(w.start+'T00:00:00'),b=new Date(w.end+'T00:00:00'),out=[];
+ while(a<=b){if(a.getDay()!==0&&a.getDay()!==6)out.push(new Date(a));a.setDate(a.getDate()+1)}
+ return out.slice(0,5)
+}
+function updateHomeAttendanceStats(){
+ // Acumulado histórico: cada registro corresponde a un docente convocado en una semana/grupo.
+ // Cada registro se clasifica en uno de los dos estados: P (asistió) o A (no asistió).
+ const attendancePresent = db.records.filter(r => String(r.weeklyAttendance || '').trim().toUpperCase() === 'P').length;
+ const attendanceAbsent = db.records.filter(r => String(r.weeklyAttendance || '').trim().toUpperCase() === 'A').length;
+ const attendanceTotal = attendancePresent + attendanceAbsent;
+ // Una cifra decimal evita que ausencias poco frecuentes se redondeen a 0% y la asistencia a 100%.
+ const presentPct = attendanceTotal ? Math.round((attendancePresent / attendanceTotal * 100) * 10) / 10 : 0;
+ const absentPct = attendanceTotal ? Math.round((attendanceAbsent / attendanceTotal * 100) * 10) / 10 : 0;
+ const presentEl = $('homeAttendancePct'), absentEl = $('homeAbsencePct');
+ const presentCountEl = $('homePresentCount'), absentCountEl = $('homeAbsentCount');
+ if (presentEl) presentEl.textContent = presentPct + '%';
+ if (absentEl) absentEl.textContent = absentPct + '%';
+ if (presentCountEl) presentCountEl.textContent = attendancePresent;
+ if (absentCountEl) absentCountEl.textContent = attendanceAbsent;
+}
+function attendanceSelectedGroup(){const el=$('attendanceGroup');return el&&el.value?el.value:active()}
+function renderAttendance(){
+ const group=attendanceSelectedGroup(),rr=rows(group);
+ $('attendanceSummary').innerHTML=`<span class="pill">${esc(group)} · ${rr.length} docentes</span>`;
+ $('attHead').innerHTML='<tr><th>Participante</th><th>Asistió al seminario</th><th>No asistió</th></tr>';
+ $('attBody').innerHTML=rr.map(r=>{let v=r.weeklyAttendance||'';return `<tr><td><b>${esc(r.name)}</b><br><span class="muted">${esc(r.cedula)} · ${esc(canonicalSchool(r.school))}</span></td><td><label class="weekly-choice"><input type="radio" name="att_${esc(String(r.id))}" ${v==='P'?'checked':''} onchange="setWeeklyAtt('${r.id}','P')"> Sí, asistió</label></td><td><label class="weekly-choice"><input type="radio" name="att_${esc(String(r.id))}" ${v==='A'?'checked':''} onchange="setWeeklyAtt('${r.id}','A')"> No asistió</label></td></tr>`}).join('')||'<tr><td colspan="3">No hay participantes en este grupo.</td></tr>';
+}
+function setWeeklyAtt(id,v){if(!requireWrite())return;let r=db.records.find(x=>String(x.id)===String(id));if(r){r.weeklyAttendance=v;save();updateHomeAttendanceStats();renderAttendance();renderAnalytics();renderWeeklyAttendanceReport();renderAbsentTeachers()}}
+function markAll(v){if(!requireWrite())return;rows(attendanceSelectedGroup()).forEach(r=>r.weeklyAttendance=v);save();updateHomeAttendanceStats();renderAttendance();renderAnalytics();renderWeeklyAttendanceReport();renderAbsentTeachers()}
+function updateAbsentFilters(){
+ const groupEl=$('absentGroup'),schoolEl=$('absentSchool');if(!groupEl||!schoolEl)return;
+ const oldGroup=groupEl.value,oldSchool=groupEl.value?schoolEl.value:schoolEl.value;
+ groupEl.innerHTML='<option value="">Todos los grupos</option>'+db.weeks.map(w=>`<option value="${esc(w.id)}">${esc(w.id)}${w.start?' — '+datefmt(w.start)+' – '+datefmt(w.end):''}</option>`).join('');
+ const selectedGroup=groupEl.value||'';const scopedRecords=db.records.filter(r=>!selectedGroup||r.week===selectedGroup);const schools=schoolOptions(scopedRecords);
+ schoolEl.innerHTML='<option value="">Todos los centros educativos</option>'+schools.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+ if([...groupEl.options].some(o=>o.value===oldGroup))groupEl.value=oldGroup;
+ if([...schoolEl.options].some(o=>o.value===oldSchool))schoolEl.value=oldSchool;
+}
+function absentTeachersData(){
+ const g=$('absentGroup')?.value||'',school=$('absentSchool')?.value||'';
+ return db.records.filter(r=>r.weeklyAttendance==='A'&&(!g||r.week===g)&&(!school||canonicalSchool(r.school)===school)).map(r=>({...r,school:canonicalSchool(r.school),status:'No asistió',weekInfo:wk(r.week)})).sort((a,b)=>String(a.week).localeCompare(String(b.week),'es',{numeric:true})||String(a.school).localeCompare(String(b.school),'es')||String(a.name).localeCompare(String(b.name),'es'));
+}
+function renderAbsentTeachers(){
+ if(!$('absentTeachersBody'))return;updateAbsentFilters();const rr=absentTeachersData();
+ $('absentCount').textContent=rr.length;$('absentSchoolsCount').textContent=new Set(rr.map(r=>r.school)).size;$('absentGroupsCount').textContent=new Set(rr.map(r=>r.week)).size;
+ $('absentTeachersBody').innerHTML=rr.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.cedula)}</td><td>${esc(r.school)}</td><td>${esc(r.week)}</td><td>${r.weekInfo?datefmt(r.weekInfo.start)+' – '+datefmt(r.weekInfo.end):'—'}</td><td><span class="pill">No asistió</span></td></tr>`).join('')||'<tr><td colspan="6">No hay docentes marcados como “No asistió” con estos filtros.</td></tr>';
+}
+function exportAbsentTeachersCSV(){if(!requireNoVisitor())return;
+ const rr=absentTeachersData(),head=['Docente','Cédula','Centro educativo','Grupo / semana','Fecha inicial','Fecha final','Estado registrado'];
+ const lines=[head,...rr.map(r=>[r.name,r.cedula,r.school,r.week,r.weekInfo?.start||'',r.weekInfo?.end||'','No asistió'])].map(row=>row.map(csvCell).join(';')).join('\r\n');
+ download('\uFEFFsep=;\r\n'+lines,'Docentes_no_asistentes.csv','text/csv;charset=utf-8');
+}
+function printAbsentTeachers(){if(!requireNoVisitor())return;
+ const rr=absentTeachersData(),group=$('absentGroup').value||'Todos los grupos',school=$('absentSchool').value||'Todos los centros educativos',w=window.open('','_blank');
+ if(!w){alert('Permite las ventanas emergentes para imprimir o guardar como PDF.');return;}
+ const rowsHtml=rr.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cedula)}</td><td>${esc(r.school)}</td><td>${esc(r.week)}</td><td>${r.weekInfo?datefmt(r.weekInfo.start)+' – '+datefmt(r.weekInfo.end):'—'}</td><td>No asistió</td></tr>`).join('');
+ w.document.open();w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Docentes no asistentes</title><style>@page{size:landscape;margin:12mm}body{font:12px Arial,sans-serif;color:#18324b}header{border-bottom:2px solid #087eaa;padding-bottom:8px;margin-bottom:8px}.report-logos{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;margin-bottom:8px}.report-logos img{display:block!important;width:82px!important;height:62px!important;max-width:82px!important;max-height:62px!important;object-fit:contain!important;flex:0 0 70px!important;opacity:.9}.report-logos .report-title{flex:1;min-width:0;text-align:center}.report-logos .report-title h1{font-size:18px;margin:0 0 3px;color:#102b4e}.report-logos .report-title h2{font-size:11px;margin:2px 0}.report-logos .report-title p{font-size:9px;margin:2px 0}h2{font-size:15px}p{margin:6px 0}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #c6dbe7;padding:7px;text-align:left}th{background:#e2f5fa;color:#102b4e}.actions{margin:12px 0}@media print{.actions{display:none}}</style></head><body><header>${reportLogoHeader()}</header><h2>Registro de docentes no asistentes</h2><p>Grupo: ${esc(group)} · Centro educativo: ${esc(school)}</p><p>Total de registros: ${rr.length} · Fecha de emisión: ${new Date().toLocaleDateString('es-PA')}</p><div class="actions"><button onclick="window.print()">Imprimir / Guardar como PDF</button></div><table><thead><tr><th>Docente</th><th>Cédula</th><th>Centro educativo</th><th>Grupo / semana</th><th>Fechas</th><th>Estado registrado</th></tr></thead><tbody>${rowsHtml||'<tr><td colspan="6">No hay docentes no asistentes para los filtros seleccionados.</td></tr>'}</tbody></table></body></html>`);w.document.close();
+}
+function updateSchoolFilters(){
+ const schools=schoolOptions(db.records),opts='<option value="">Todos los centros educativos</option>'+schools.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+ ['ps','as'].forEach(id=>{let el=$(id);if(!el)return;let old=el.value;el.innerHTML=opts;if([...el.options].some(o=>o.value===old))el.value=old;});
+}
+function repeatedTeachersData(){
+ const byIdentity=new Map();
+ const clean=v=>String(v??'').trim();
+ db.records.forEach(r=>{
+  const ced=norm(r.cedula||'');
+  const name=norm(r.name||'');
+  const key=ced?'cedula:'+ced:(name?'nombre:'+name:'');
+  if(!key)return;
+  if(!byIdentity.has(key))byIdentity.set(key,{key,name:clean(r.name),cedula:clean(r.cedula),schools:new Set(),groups:new Map()});
+  const x=byIdentity.get(key);
+  if(!x.name&&clean(r.name))x.name=clean(r.name);
+  if(!x.cedula&&clean(r.cedula))x.cedula=clean(r.cedula);
+  const school=canonicalSchool(r.school)||'Sin colegio indicado';
+  x.schools.add(school);
+  if(!x.groups.has(r.week))x.groups.set(r.week,{school, start:r.start||'',end:r.end||'',attended:false});
+  if(r.weeklyAttendance==='P')x.groups.get(r.week).attended=true;
+ });
+ return [...byIdentity.values()].filter(x=>x.groups.size>1).map(x=>({...x,schools:[...x.schools].sort((a,b)=>a.localeCompare(b,'es')),groups:[...x.groups.keys()].sort((a,b)=>a.localeCompare(b,'es',{numeric:true})),attendedGroups:[...x.groups.entries()].filter(([group,info])=>info.attended).map(([group])=>group).sort((a,b)=>a.localeCompare(b,'es',{numeric:true}))})).sort((a,b)=>a.name.localeCompare(b.name,'es'));
+}
+function renderRepeatedTeachers(){
+ const body=$('repeatedTeachersBody');if(!body)return;
+ const all=repeatedTeachersData(),q=norm($('repeatSearch')?.value||'');
+ const filtered=all.filter(x=>norm([x.name,x.cedula,...x.schools,...x.groups].join(' ')).includes(q));
+ $('repeatTeachersCount').textContent=all.length;
+ $('repeatMembershipCount').textContent=all.reduce((n,x)=>n+x.groups.length,0);
+ body.innerHTML=filtered.map(x=>`<tr><td><b>${esc(x.name||'Sin nombre')}</b></td><td>${esc(x.cedula||'—')}</td><td>${x.schools.map(esc).join('<br>')}</td><td>${x.groups.map(esc).join(', ')}</td><td>${x.attendedGroups.length?x.attendedGroups.map(esc).join(', '):'Ninguno registrado'}</td><td>${x.groups.length}</td></tr>`).join('')||'<tr><td colspan="6">No se encontraron docentes registrados en más de un grupo.</td></tr>';
+}
+function exportRepeatedTeachersCSV(){if(!requireNoVisitor())return;
+ const rows=[['Docente','Cédula','Centros educativos','Grupos donde aparece','Grupos donde asistió','Número de grupos'],...repeatedTeachersData().map(x=>[x.name,x.cedula,x.schools.join(' | '),x.groups.join(' | '),x.attendedGroups.join(' | '),x.groups.length])];
+ const csv=rows.map(r=>r.map(csvCell).join(';')).join('\r\n');download('\uFEFFsep=;\r\n'+csv,'Docentes_repetidos_entre_grupos.csv','text/csv;charset=utf-8');
+}
+function printRepeatedTeachers(){if(!requireNoVisitor())return;
+ const data=repeatedTeachersData(),w=window.open('','_blank');if(!w){alert('Permite las ventanas emergentes para imprimir o guardar como PDF.');return;}
+ const rows=data.map(x=>`<tr><td>${esc(x.name||'Sin nombre')}</td><td>${esc(x.cedula||'—')}</td><td>${x.schools.map(esc).join('<br>')}</td><td>${x.groups.map(esc).join(', ')}</td><td>${x.attendedGroups.length?x.attendedGroups.map(esc).join(', '):'Ninguno registrado'}</td><td>${x.groups.length}</td></tr>`).join('');
+ w.document.open();w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Docentes repetidos entre grupos</title><style>body{font:12px Arial;color:#18324b}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #c6dbe7;padding:7px;text-align:left}th{background:#e2f5fa}.actions{margin:12px 0}@media print{.actions{display:none}}</style></head><body>${reportLogoHeader()}<h2>Docentes repetidos entre grupos</h2><p>Total de docentes repetidos: ${data.length} · Emitido: ${new Date().toLocaleDateString('es-PA')}</p><div class="actions"><button onclick="window.print()">Imprimir / Guardar como PDF</button></div><table><thead><tr><th>Docente</th><th>Cédula</th><th>Centros educativos</th><th>Grupos</th><th>N.º de grupos</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No se encontraron docentes repetidos.</td></tr>'}</tbody></table></body></html>`);w.document.close();
+}
+function renderAnalytics(){
+ let g=$('ag').value,s=$('as').value,rr=db.records.filter(r=>(!g||r.week===g)&&(!s||canonicalSchool(r.school)===s)),schools={},groups={},p=0,a=0;
+ rr.forEach(r=>{const school=canonicalSchool(r.school);schools[school]=(schools[school]||0)+1;groups[r.week]=(groups[r.week]||0)+(r.weeklyAttendance==='P'?1:0);if(String(r.weeklyAttendance||'').trim().toUpperCase()==='P')p++;else a++});
+ $('an').textContent=rr.length;$('ac').textContent=Object.keys(schools).length;$('ap').textContent=(p+a)?Math.round(p/(p+a)*100)+'%':'—';$('aa').textContent=(p+a)?Math.round(a/(p+a)*100)+'%':'—';
+ $('schoolStats').innerHTML=barList(schools);$('groupStats').innerHTML=barList(groups);
+ const overallRecords=rr;
+ $('attendancePieOverall').innerHTML=pieChart(p,a,'Asistencia registrada');
+ const gp=rr;
+ $('attendancePieGroup').innerHTML=Object.keys(gp.reduce((o,r)=>(o[r.week]=1,o),{})).sort((x,y)=>x.localeCompare(y,undefined,{numeric:true})).map(group=>{let list=gp.filter(r=>r.week===group),yes=list.filter(r=>String(r.weeklyAttendance||'').trim().toUpperCase()==='P').length,no=list.length-yes;return `<div style="display:flex;align-items:center;gap:12px;margin:10px 0"><div class="pie" style="background:${pieGradient(yes,no)}"></div><div><b>${esc(group)}</b><div class="muted">Asistieron: ${yes} · No asistieron: ${no}</div></div></div>`}).join('')||'<span class="muted">Sin datos de grupos.</span>';
+}
+function pieGradient(p,a){let total=p+a;if(!total)return 'conic-gradient(#45534d 0% 100%)';let x=p/total*100;return `conic-gradient(#16a6c8 0% ${x}%, #e06b6b ${x}% 100%)`}
+function pieChart(p,a,label){let total=p+a;return `<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div class="pie" style="background:${pieGradient(p,a)}"></div><div><div><span class="legend-dot" style="background:#16a6c8"></span> Asistieron: <b>${p}</b></div><div><span class="legend-dot" style="background:#e06b6b"></span> No asistieron: <b>${a}</b></div><div class="muted">Total: ${total}</div></div></div>`}
+function barList(obj){let max=Math.max(1,...Object.values(obj));return Object.keys(obj).sort((a,b)=>obj[b]-obj[a]).map(k=>`<p>${esc(k)} <b style="float:right">${obj[k]}</b><div style="height:8px;background:#e7eee9;border-radius:8px"><div style="height:8px;width:${obj[k]/max*100}%;background:#087eaa;border-radius:8px"></div></div></p>`).join('')||'<span class="muted">Sin datos</span>'}
+function printAnalyticsReport(mode){if(!canPrintAnalyticsPdf()){alert('Tu perfil no tiene permiso para generar informes PDF de análisis.');return;}
+ const group=mode==='group'?($('ag').value||active()):'';
+ const title=mode==='group'?'Informe estadístico — '+group:'Informe estadístico general — todos los grupos';
+ const records=db.records.filter(r=>!group||r.week===group).map(r=>({...r,school:canonicalSchool(r.school)}));
+ const schools={};
+ records.forEach(r=>{const school=canonicalSchool(r.school);if(!schools[school])schools[school]={total:0,present:0,absent:0,groups:new Set()};const x=schools[school];x.total++;x.groups.add(r.week);if(String(r.weeklyAttendance||'').trim().toUpperCase()==='P')x.present++;else x.absent++});
+ const totals={present:records.filter(r=>String(r.weeklyAttendance||'').trim().toUpperCase()==='P').length,absent:records.filter(r=>String(r.weeklyAttendance||'').trim().toUpperCase()!=='P').length,total:records.length};
+ const pie=exportPieMarkup(records,true);
+ const tableRows=Object.entries(schools).sort((a,b)=>a[0].localeCompare(b[0],'es')).map(([name,x])=>`<tr><td>${esc(name)}</td><td>${x.total}</td><td>${x.present}</td><td>${x.absent}</td></tr>`).join('');
+ const w=window.open('','_blank');if(!w){alert('Permite las ventanas emergentes para generar el informe.');return;}
+ w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font:14px Arial;color:#18324b}table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13px}th,td{border:1px solid #c6dbe7;padding:9px;text-align:left}th{background:#e2f5fa;font-size:13px}</style></head><body>${reportLogoHeader()}<h2>${esc(title)}</h2><p>Total de registros: ${totals.total} · Asistieron: ${totals.present} · No asistieron: ${totals.absent}</p>${pie}<table><thead><tr><th>Centro educativo unificado</th><th>Registros</th><th>Asistieron</th><th>No asistieron</th></tr></thead><tbody>${tableRows}</tbody></table><p>Emitido: ${new Date().toLocaleDateString('es-PA')}</p><button onclick="window.print()">Imprimir / Guardar PDF</button></body></html>`);w.document.close();
+}
+function updateWeeklyAttendanceReportSelector(){
+ const el=$('weekAttendanceReport');if(!el)return;const old=el.value||active();
+ el.innerHTML=db.weeks.map(w=>`<option value="${esc(w.id)}">${esc(w.id)}${w.start?' — '+datefmt(w.start)+' – '+datefmt(w.end):''}</option>`).join('');
+ if([...el.options].some(o=>o.value===old))el.value=old;else if([...el.options].some(o=>o.value===active()))el.value=active();
+ renderWeeklyAttendanceReport();
+}
+function weeklyAttendanceData(){
+ const g=$('weekAttendanceReport')?.value||active(),w=wk(g),rr=rows(g);
+ return {g,w,rows:rr.map(r=>{const v=r.weeklyAttendance||'';let status=String(v).trim().toUpperCase()==='P'?'Asistió':'No asistió';return {...r,school:canonicalSchool(r.school),status,weeklyAttendance:v}})};
+}
+function renderWeeklyAttendanceReport(){
+ if(!$('weeklyAttendanceBody'))return;const d=weeklyAttendanceData(),present=d.rows.filter(r=>r.status==='Asistió').length,absent=d.rows.length-present;
+ $('warTotal').textContent=d.rows.length;$('warPresent').textContent=present;$('warAbsent').textContent=absent;
+ $('weeklyAttendanceBody').innerHTML=d.rows.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.cedula)}</td><td>${esc(r.school||'—')}</td><td><span class="pill">${esc(r.status)}</span></td></tr>`).join('')||'<tr><td colspan="4">Este grupo todavía no tiene participantes.</td></tr>';
+}
+function weeklyAttendanceReportCSV(){const d=weeklyAttendanceData();const head=['Docente','Cédula','Centro educativo','Grupo','Asistencia semanal'];return '\uFEFFsep=;\r\n'+[head.map(csvCell).join(';'),...d.rows.map(r=>[r.name,r.cedula,r.school,r.week,r.status].map(csvCell).join(';'))].join('\r\n')}
+function exportWeeklyAttendanceReport(){if(!requireNoVisitor())return;
+ const d=weeklyAttendanceData(),counts=exportAttendanceSummary(d.rows),chart=exportPieMarkup(d.rows,true);
+ const rows=d.rows.map(r=>'<tr><td class="name">'+esc(r.name)+'</td><td>'+esc(r.cedula)+'</td><td>'+esc(r.school||'Sin colegio')+'</td><td>'+esc(r.status)+'</td></tr>').join('');
+ const html='<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Asistencia semanal</x:Name><x:WorksheetOptions><x:DisplayGridlines>0</x:DisplayGridlines></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>body{font-family:Calibri,Arial,sans-serif;color:#20352c}.excel-title{text-align:center;border-bottom:3px solid #087eaa;padding:10px 0 12px;margin:0 0 14px}.excel-title h1{font-size:20pt;color:#102b4e;margin:0;font-weight:bold}.excel-title h2{font-size:12pt;color:#087eaa;margin:5px 0}.excel-title p{font-size:10pt;margin:3px 0;color:#526a80}.heading{font-size:15pt;font-weight:bold;color:#102b4e;margin-top:10px}.meta{color:#526a80;font-size:10pt}.summary{border-collapse:collapse;margin:12px 0;width:100%}.summary td,.summary th{border:1px solid #c6dbe7;padding:8px;text-align:center}.summary td{font-size:9pt;color:#526a80;background:#e2f5fa}.summary th{font-size:15pt;color:#102b4e;background:#eef8fb}.export-attendance-summary{border:1px solid #d5e2eb;background:#fff;color:#18324b;padding:10px;margin:10px 0}.table{border-collapse:collapse;width:100%;font-size:11pt;margin-top:10px}.table th{background:#087eaa;color:#fff;border:1px solid #c6dbe7;padding:9px;text-align:left}.table td{border:1px solid #c6dbe7;padding:7px;mso-number-format:"\\@"}.table tr:nth-child(even) td{background:#edf7fb}.name{font-weight:bold;color:#102b4e}.foot{color:#61758a;font-size:9pt;margin-top:14px}</style></head><body><div class="excel-title"><h1>ENTRE PARES PANAMÁ ESTE</h1><h2>Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial</h2><p>Facilitadores: José Santos y Esteban Arosemena</p><p>Sede: Venancio Fenosa Pascual · Grupo nacional: 62</p></div><div class="heading">INFORME DE ASISTENCIA SEMANAL — '+esc(d.g)+'</div><p class="meta">Semana: '+datefmt(d.w?.start)+' – '+datefmt(d.w?.end)+' &nbsp; | &nbsp; Emitido: '+new Date().toLocaleDateString('es-PA')+'</p><table class="summary"><tr><td>PARTICIPANTES</td><td>ASISTIERON</td><td>NO ASISTIERON</td></tr><tr><th>'+counts.total+'</th><th>'+counts.present+'</th><th>'+counts.absent+'</th></tr></table>'+chart+'<table class="table"><thead><tr><th>Docente</th><th>Cédula</th><th>Centro educativo</th><th>Asistencia semanal</th></tr></thead><tbody>'+rows+'</tbody></table><p class="foot">ENTRE PARES PANAMÁ ESTE · Docencia Interdisciplinaria en Entornos Digitales e Inteligencia Artificial · Facilitadores: José Santos y Esteban Arosemena</p></body></html>';
+ download('\uFEFF'+html,'Asistencia_'+d.g.replace(/[^a-z0-9]+/gi,'_')+'.xls','application/vnd.ms-excel');
+}
+function printWeeklyAttendanceReport(){if(!canPrintAnalyticsPdf()){alert('Tu perfil no tiene permiso para generar informes PDF de análisis.');return;}const d=weeklyAttendanceData(),w=window.open('','_blank');if(!w){alert('Permite las ventanas emergentes para imprimir o guardar como PDF.');return;}const counts={present:d.rows.filter(r=>r.status==='Asistió').length,absent:d.rows.filter(r=>r.status==='No asistió').length,total:d.rows.length};w.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Asistencia '+esc(d.g)+'</title><style>*{box-sizing:border-box}@page{size:legal portrait;margin:0.32in}body{font-family:Arial,sans-serif;padding:0;color:#18324b;font-size:11px}header{border-bottom:2px solid #087eaa;padding-bottom:6px;margin-bottom:8px}h1{color:#102b4e;font-size:19px;margin:0 0 3px}h2{font-size:14px;margin:5px 0 3px}.summary{background:#eaf6fa;border:1px solid #d5e2eb;border-radius:5px;padding:6px;margin:6px 0}.export-attendance-summary{break-inside:avoid;margin:6px 0!important;padding:7px!important;gap:10px!important}table{border-collapse:collapse;width:100%;font-size:10.5px;margin-top:7px}th,td{border:1px solid #c6dbe7;padding:4px 5px;text-align:left;line-height:1.15}th{background:#e2f5fa;color:#102b4e;font-size:10px}td:first-child{font-size:12px;font-weight:600}tr:nth-child(even){background:#f7f9f8}.footer{font-size:9px;color:#61758a;margin-top:8px}@media print{button{display:none}thead{display:table-header-group}tr{break-inside:avoid}}</style></head><body><header>'+reportLogoHeader()+'</header><h2>Informe de asistencia semanal — '+esc(d.g)+'</h2><p>Semana: '+datefmt(d.w?.start)+' – '+datefmt(d.w?.end)+' | Fecha de emisión: '+new Date().toLocaleDateString('es-PA')+'</p>'+exportPieMarkup(d.rows,true)+'<table><thead><tr><th>Docente</th><th>Cédula</th><th>Centro educativo</th><th>Asistencia semanal</th></tr></thead><tbody>'+d.rows.map(r=>'<tr><td>'+esc(r.name)+'</td><td>'+esc(r.cedula)+'</td><td>'+esc(r.school||'—')+'</td><td>'+esc(r.status)+'</td></tr>').join('')+'</tbody></table><p class="footer">Informe generado por Control de grupos Entre Pares · Panamá Este</p><script>window.onload=()=>window.print()<\\/script></body></html>');w.document.close()}
+function addIncident(){if(!requireWrite())return;let text=$('itext').value.trim();if(!text){alert('Escribe el detalle de la observación.');return}db.incidents.push({id:Date.now()+Math.random(),week:$('ig').value,date:$('idate').value,type:$('itype').value,person:$('iperson').value.trim(),text});save();$('itext').value='';$('iperson').value='';refresh();$('ifilter').value=$('ig').value;renderIncidents()}
+function renderIncidents(){if(!$('incidentBody'))return;let g=$('ifilter').value,q=norm($('iq').value),rr=db.incidents.filter(x=>(!g||x.week===g)&&(!q||norm(x.text+' '+x.person+' '+x.type).includes(q))).sort((a,b)=>b.date.localeCompare(a.date));$('incidentBody').innerHTML=rr.map(x=>`<tr><td>${datefmt(x.date)}</td><td>${esc(x.week)}</td><td>${esc(x.type)}</td><td>${esc(x.person||'—')}</td><td>${esc(x.text)}</td><td><button class="action warn" onclick="delIncident('${x.id}')">Eliminar</button></td></tr>`).join('')||'<tr><td colspan="6">No hay incidencias con estos filtros.</td></tr>'}
+function delIncident(id){if(!requireWrite())return;if(confirm('¿Eliminar esta observación?')){db.incidents=db.incidents.filter(x=>String(x.id)!==String(id));save();refresh()}}
+function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+function download(text,name,type='text/csv'){if(!requireNoVisitor())return;let a=document.createElement('a'),u=URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+function exportCSV(){if(!requireNoVisitor())return;download(['Nombre,Cédula,Colegio,Semana,Inicio,Fin',...db.records.map(r=>[r.name,r.cedula,canonicalSchool(r.school),r.week,r.start,r.end].map(csvCell).join(','))].join('\n'),'entre_pares_participantes.csv')}
+function exportIncidents(){if(!requireNoVisitor())return;download(['Fecha,Semana,Tipo,Relacionado,Detalle',...db.incidents.map(r=>[r.date,r.week,r.type,r.person,r.text].map(csvCell).join(','))].join('\n'),'entre_pares_observaciones.csv')}
+function generateIncidentsPDF(){if(!canOperate()){alert('Solo el administrador principal y el coordinador pueden generar este informe.');return;}const g=$('ifilter')?.value||'',q=norm($('iq')?.value||''),rows=db.incidents.filter(x=>(!g||x.week===g)&&(!q||norm(x.text+' '+x.person+' '+x.type).includes(q))).sort((a,b)=>(b.date||'').localeCompare(a.date||''));const w=window.open('','_blank');if(!w){alert('Permite las ventanas emergentes para generar el informe en PDF.');return;}const escHtml=v=>esc(v??'—');const rowsHtml=rows.map(x=>'<tr><td>'+escHtml(datefmt(x.date))+'</td><td>'+escHtml(x.week)+'</td><td>'+escHtml(x.type)+'</td><td>'+escHtml(x.person||'—')+'</td><td>'+escHtml(x.text)+'</td></tr>').join('');w.document.open();w.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Informe de incidencias y observaciones</title><style>@page{size:landscape;margin:12mm}body{font:12px Arial,sans-serif;color:#18324b}header{border-bottom:2px solid #087eaa;padding-bottom:8px;margin-bottom:12px}h1{font-size:20px;color:#102b4e;margin:0 0 4px}h2{font-size:16px;margin:14px 0 6px}p{margin:5px 0}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{border:1px solid #c6dbe7;padding:7px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e2f5fa;color:#102b4e}.actions{margin:12px 0}.actions button{background:#087eaa;color:white;border:0;border-radius:6px;padding:9px 13px;font-weight:bold;cursor:pointer}.footer{font-size:10px;color:#61758a;margin-top:16px}@media print{.actions{display:none}tr{break-inside:avoid}}</style></head><body><header>'+reportLogoHeader()+'</header><h2>Informe de incidencias y observaciones</h2><p>Grupo: '+(g?escHtml(g):'Todos los grupos')+' · Fecha de emisión: '+new Date().toLocaleDateString('es-PA')+'</p><p>Total de registros: '+rows.length+(q?' · Búsqueda: '+escHtml($('iq').value):'')+'</p><div class="actions"><button onclick="window.print()">Imprimir / Guardar como PDF</button></div><table><thead><tr><th>Fecha</th><th>Grupo</th><th>Tipo</th><th>Relacionado con</th><th>Detalle</th></tr></thead><tbody>'+(rowsHtml||'<tr><td colspan="5">No hay incidencias u observaciones para los filtros seleccionados.</td></tr>')+'</tbody></table><p class="footer">Informe generado por Control de grupos Entre Pares · Panamá Este</p></body></html>');w.document.close();}
+function backupJSON(){if(!requireNoVisitor())return;download(JSON.stringify(db,null,2),'respaldo_entre_pares.json','application/json')}
+function restoreJSON(e){if(!requireWrite())return;let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.weeks)||!Array.isArray(d.records))throw Error();if(confirm('Esto reemplazará los datos actuales por el respaldo. ¿Continuar?')){db=d;if(!db.incidents)db.incidents=[];save();refresh()}}catch(err){alert('El archivo no parece un respaldo válido.')}};r.readAsText(f)}
+$('loginForm').addEventListener('submit',loginFirebase);$('createUserForm').addEventListener('submit',createManagedUser);$('newUserRole').addEventListener('change',applyRoleUi);
+$('participantEditForm').addEventListener('submit',saveParticipantEdit);$('participantEditModal').addEventListener('click',e=>{if(e.target===$('participantEditModal'))closeParticipantEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('participantEditModal').classList.contains('hide'))closeParticipantEditor()});
+if(auth){auth.onAuthStateChanged(user=>{if(user)startAuthenticatedApp(user);else{cloudReady=false;currentUser=null;currentRole='';currentProfile=null;appStarting=false;maintenanceActive=false;if(cloudUnsubscribe){cloudUnsubscribe();cloudUnsubscribe=null}if(incidentUnsubscribe){incidentUnsubscribe();incidentUnsubscribe=null}if(profileUnsubscribe){profileUnsubscribe();profileUnsubscribe=null}if(maintenanceUnsubscribe){maintenanceUnsubscribe();maintenanceUnsubscribe=null}$('maintenanceGate').style.display='none';$('authGate').style.display='flex';$('appShell').classList.add('auth-locked')}})}else showAuthMessage('No se pudo inicializar Firebase. Verifique la configuración del SDK.');
+</script></body></html>
